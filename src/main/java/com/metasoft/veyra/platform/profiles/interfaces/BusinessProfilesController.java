@@ -13,7 +13,9 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -33,14 +35,14 @@ public class BusinessProfilesController {
             }
 
 
-        @PostMapping
+        @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Create a new business profile")
     @ApiResponses(
             value = {
                     @ApiResponse(responseCode = "201", description = "Business profile created"),
                     @ApiResponse(responseCode = "400", description = "Bad request ")
             })
-        public ResponseEntity<BusinessProfileResource> createBusinessProfile(@RequestBody CreateBusinessProfileResource resource)
+        public ResponseEntity<BusinessProfileResource> createBusinessProfile( @Valid @ModelAttribute CreateBusinessProfileResource resource)
         {
         var createBusinessProfileCommand= CreateBusinessProfileCommandFromResourceAssembler.toCommandFromResource(resource);
         var businessProfile= businessProfileCommandService.handle(createBusinessProfileCommand);
