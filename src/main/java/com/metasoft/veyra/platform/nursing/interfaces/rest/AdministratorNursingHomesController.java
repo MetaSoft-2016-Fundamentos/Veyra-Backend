@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,8 +37,8 @@ public class AdministratorNursingHomesController {
             @ApiResponse(responseCode = "201", description = "Nursing home create"),
             @ApiResponse(responseCode = "400",description = "Bad request")
     })
-    @PostMapping
-    public ResponseEntity<NursingHomeResource> createNursingHome(@Valid @RequestBody CreateNursingHomeResource resource, @PathVariable Long administratorId){
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<NursingHomeResource> createNursingHome(@Valid @ModelAttribute CreateNursingHomeResource resource, @PathVariable Long administratorId){
         var createNursingHomeCommand= CreateNursingHomeCommandFromResourceAssembler.toCommandFromResource(resource,administratorId);
         var nursingHomeId=nursingHomeCommandServices.handle(createNursingHomeCommand);
         if (nursingHomeId==null||nursingHomeId==0L){return ResponseEntity.badRequest().build();}
