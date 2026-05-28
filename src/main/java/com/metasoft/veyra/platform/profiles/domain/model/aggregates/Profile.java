@@ -1,6 +1,6 @@
 package com.metasoft.veyra.platform.profiles.domain.model.aggregates;
 
-import com.metasoft.veyra.platform.profiles.domain.model.valueobjects.EmailAddress;
+import com.metasoft.veyra.platform.shared.domain.model.valueobjects.EmailAddress;
 import com.metasoft.veyra.platform.profiles.domain.model.valueobjects.PhoneNumber;
 import com.metasoft.veyra.platform.profiles.domain.model.valueobjects.Photo;
 import com.metasoft.veyra.platform.profiles.domain.model.valueobjects.StreetAddress;

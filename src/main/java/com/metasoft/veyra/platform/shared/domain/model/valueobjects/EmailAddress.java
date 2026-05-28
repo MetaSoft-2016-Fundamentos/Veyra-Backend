@@ -1,4 +1,4 @@
-package com.metasoft.veyra.platform.profiles.domain.model.valueobjects;
+package com.metasoft.veyra.platform.shared.domain.model.valueobjects;
 
 import jakarta.validation.constraints.Email;
 
