@@ -1,6 +1,8 @@
 package com.metasoft.veyra.platform.nursing.interfaces.rest.resources;
 
 import jakarta.validation.constraints.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.time.LocalDate;
 
 public record CreateResidentResource(
@@ -38,8 +40,8 @@ public record CreateResidentResource(
         @NotBlank(message = "Country is required")
         String country,
 
-        @NotBlank(message = "Photo data is required")
-        String photoBase64,
+        @NotNull(message = "Photo data is required")
+        MultipartFile photo,
 
         @NotBlank(message = "Phone number is required")
         String phoneNumber,

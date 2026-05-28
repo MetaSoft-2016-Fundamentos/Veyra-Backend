@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,14 +39,14 @@ public class NursingHomeResidentsController {
         this.nursingHomeQueryServices = nursingHomeQueryServices;
     }
 
-    @PostMapping
+    @PostMapping( consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Create a new resident in a nursing home")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201",description = "Resident created"),
             @ApiResponse(responseCode = "400",description = "Bad request")
     })
     @Parameter(name = "nursingHomeId", description = "The unique identifier of the nursing home", required = true)
-    public ResponseEntity<ResidentResource> createResident(@Valid @RequestBody CreateResidentResource resource, @PathVariable Long nursingHomeId)
+    public ResponseEntity<ResidentResource> createResident(@Valid @ModelAttribute CreateResidentResource resource, @PathVariable Long nursingHomeId)
     {
         var residentCommand= CreateResidentCommandFromResourceAssembler.toCommandFromResource(resource,nursingHomeId);
         var residentId= residentCommandServices.handle(residentCommand);
