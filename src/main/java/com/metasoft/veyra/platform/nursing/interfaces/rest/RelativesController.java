@@ -1,5 +1,6 @@
 package com.metasoft.veyra.platform.nursing.interfaces.rest;
 
+import com.metasoft.veyra.platform.nursing.domain.model.queries.GetAllRelativesQuery;
 import com.metasoft.veyra.platform.nursing.domain.model.queries.GetRelativeByIdQuery;
 import com.metasoft.veyra.platform.nursing.domain.services.RelativeCommandService;
 import com.metasoft.veyra.platform.nursing.domain.services.RelativeQueryService;
@@ -14,10 +15,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 /**
@@ -69,5 +69,21 @@ public ResponseEntity<RelativeResource>createRelative(@Valid @RequestBody Create
         var relativeEntity= relative.get();
         var relativeResource= RelativeResourceFromEntityAssembler.toResourceFromEntity(relativeEntity);
         return new ResponseEntity<>(relativeResource, HttpStatus.CREATED);
+    }
+
+    @GetMapping
+    @Operation(
+            summary = "Get all patient relatives",
+            description = "Retrieves a list of all relatives associated with patients in the nursing platform"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of relatives retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "No relatives found")
+    })
+    public ResponseEntity<List<RelativeResource>> getAllRelatives(){
+    var relatives= relativeQueryService.handle(new GetAllRelativesQuery());
+    if (relatives.isEmpty()){return ResponseEntity.notFound().build();}
+    var RelativeResource= relatives.stream().map(RelativeResourceFromEntityAssembler::toResourceFromEntity).toList();
+    return ResponseEntity.ok(RelativeResource);
     }
 }
