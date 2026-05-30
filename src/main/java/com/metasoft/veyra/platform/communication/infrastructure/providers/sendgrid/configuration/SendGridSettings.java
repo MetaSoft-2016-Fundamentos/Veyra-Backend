@@ -2,6 +2,7 @@ package com.metasoft.veyra.platform.communication.infrastructure.providers.sendg
 
 public record SendGridSettings(
         String apiKey,
-        String fromEmail
+        String fromEmail,
+        String fromName
 ) {
 }

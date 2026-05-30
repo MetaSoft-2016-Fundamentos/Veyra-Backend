@@ -1,4 +1,4 @@
-package com.metasoft.veyra.platform.communication.infrastructure.providers.fcm.stub;
+package com.metasoft.veyra.platform.communication.infrastructure.providers.stub;
 
 import com.metasoft.veyra.platform.communication.application.internal.outboundservices.fcm.FirebaseMessagingGateway;
 import com.metasoft.veyra.platform.communication.domain.model.commands.SendPushNotificationCommand;
