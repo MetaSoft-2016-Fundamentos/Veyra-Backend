@@ -4,12 +4,14 @@ package com.metasoft.veyra.platform.profiles.infrastructure.storage.cloudinary.s
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.metasoft.veyra.platform.profiles.infrastructure.storage.cloudinary.CloudinaryStorageService;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 @Service
+@ConditionalOnProperty(name = "integrations.cloudinary.enabled", havingValue = "true")
 public class CloudinaryServiceImpl implements CloudinaryStorageService {
 
     private final Cloudinary cloudinary;

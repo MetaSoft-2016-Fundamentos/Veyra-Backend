@@ -4,11 +4,13 @@ package com.metasoft.veyra.platform.profiles.infrastructure.storage.cloudinary.c
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 
 @Configuration
+@ConditionalOnProperty(name = "integrations.cloudinary.enabled", havingValue = "true")
 public class CloudinaryConfig {
     @Value("${cloudinary.cloud-name}")
     private String cloudName;
