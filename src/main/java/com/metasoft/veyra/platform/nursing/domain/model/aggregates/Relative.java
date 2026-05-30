@@ -6,6 +6,8 @@ import com.metasoft.veyra.platform.shared.domain.model.valueobjects.EmailAddress
 import com.metasoft.veyra.platform.shared.domain.model.valueobjects.PersonName;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import lombok.Getter;
 @Getter
 @Entity
@@ -15,9 +17,17 @@ public class Relative extends AuditableAbstractAggregateRoot<Relative> {
     @Embedded
     private EmailAddress emailAddress;
     private PersonName personName;
-    public Relative(String emailAddress, String firstName, String lastName){
+    @OneToOne()
+    @JoinColumn( name = "resident_id")
+private Resident resident;
+@OneToOne()
+@JoinColumn( name = "nursing_home_id")
+private NursingHome nursingHome;
+    public Relative(String emailAddress, String firstName, String lastName, Resident resident,NursingHome nursingHome){
     this.emailAddress= new EmailAddress(emailAddress);
     this.userId=null;
+    this.resident= resident;
+    this.nursingHome=nursingHome;
     this.personName= new PersonName(firstName, lastName);
         this.addDomainEvent(new RegisteredRelativeEvent(this,this.emailAddress.emailAddress(),this.personName.firstName(),this.personName.lastName()));
     }
