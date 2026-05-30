@@ -6,6 +6,7 @@ import com.metasoft.veyra.platform.tracking.domain.services.DeviceCommandService
 import com.metasoft.veyra.platform.tracking.domain.services.MeasurementCommandService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
@@ -19,28 +20,41 @@ public class TrackingApplicationReadyEventHandler {
 
     private final DeviceCommandService deviceCommandService;
     private final MeasurementCommandService measurementCommandService;
+    private final boolean deviceSeedingEnabled;
+    private final boolean measurementSeedingEnabled;
 
     public TrackingApplicationReadyEventHandler(
             DeviceCommandService deviceCommandService,
-            MeasurementCommandService measurementCommandService) {
+            MeasurementCommandService measurementCommandService,
+            @Value("${tracking.seeding.devices.enabled:true}") boolean deviceSeedingEnabled,
+            @Value("${tracking.seeding.measurements.enabled:true}") boolean measurementSeedingEnabled
+    ) {
         this.deviceCommandService = deviceCommandService;
         this.measurementCommandService = measurementCommandService;
+        this.deviceSeedingEnabled = deviceSeedingEnabled;
+        this.measurementSeedingEnabled = measurementSeedingEnabled;
     }
 
     @EventListener
     public void on(ApplicationReadyEvent event) {
         var applicationName = event.getApplicationContext().getId();
-        LOGGER.info("Starting seeding process for {} at {}", applicationName, currentTimestamp());
+        LOGGER.info("Starting tracking seeding for {} at {}", applicationName, currentTimestamp());
 
-        LOGGER.info("Step 1: Seeding devices...");
-        var seedDeviceCommand = new SeedDeviceCommand();
-        deviceCommandService.handle(seedDeviceCommand);
+        if (deviceSeedingEnabled) {
+            LOGGER.info("Step 1: Seeding devices...");
+            deviceCommandService.handle(new SeedDeviceCommand());
+        } else {
+            LOGGER.info("Step 1: Device seeding disabled. Skipping.");
+        }
 
-        LOGGER.info("Step 2: Seeding measurements...");
-        var seedMeasurementCommand = new SeedMeasurementCommand();
-        measurementCommandService.handle(seedMeasurementCommand);
+        if (measurementSeedingEnabled) {
+            LOGGER.info("Step 2: Seeding measurements...");
+            measurementCommandService.handle(new SeedMeasurementCommand());
+        } else {
+            LOGGER.info("Step 2: Measurement seeding disabled. Skipping.");
+        }
 
-        LOGGER.info("Seeding process finished for {} at {}", applicationName, currentTimestamp());
+        LOGGER.info("Tracking seeding finished for {} at {}", applicationName, currentTimestamp());
     }
 
     private Timestamp currentTimestamp() {
