@@ -16,8 +16,5 @@ public interface ResidentRepository extends JpaRepository<Resident,Long> {
     List<Resident> findByNursingHomeIdAndResidentStatus(Long nursingHomeId, ResidentState residentState);
     boolean existsByNursingHomeIdAndPersonProfileId(Long nursingHomeId, PersonProfileId personProfileId);
     boolean existsByIdAndNursingHomeId(Long id, Long nursingHomeId);
-
-    List<Resident> findByRelativeId(Long relativeId);
-
 }
 

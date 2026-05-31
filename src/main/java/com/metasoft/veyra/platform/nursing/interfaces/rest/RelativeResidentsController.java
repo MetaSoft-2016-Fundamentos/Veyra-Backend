@@ -1,7 +1,5 @@
 package com.metasoft.veyra.platform.nursing.interfaces.rest;
-
-import com.metasoft.veyra.platform.nursing.domain.model.queries.GetResidentsByRelativeIdQuery;
-import com.metasoft.veyra.platform.nursing.domain.services.ResidentCommandServices;
+import com.metasoft.veyra.platform.nursing.domain.model.queries.GetResidentByRelativeIdQuery;
 import com.metasoft.veyra.platform.nursing.domain.services.ResidentQueryServices;
 import com.metasoft.veyra.platform.nursing.interfaces.rest.resources.ResidentResource;
 import com.metasoft.veyra.platform.nursing.interfaces.rest.transform.ResidentResourceFromEntityAssembler;
@@ -10,11 +8,9 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,11 +20,9 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RestController
 @Tag(name = "Relatives")
 public class RelativeResidentsController {
-    private final ResidentCommandServices residentCommandServices;
     private final ResidentQueryServices residentQueryServices;
 
-    public RelativeResidentsController(ResidentCommandServices residentCommandServices, ResidentQueryServices residentQueryServices) {
-        this.residentCommandServices = residentCommandServices;
+    public RelativeResidentsController(ResidentQueryServices residentQueryServices) {
         this.residentQueryServices = residentQueryServices;
     }
     /**
@@ -57,9 +51,11 @@ public class RelativeResidentsController {
     })
     @Parameter(name = "relativeId", description = "The unique identifier of the relative (path parameter).", required = true)
     public ResponseEntity<List<ResidentResource>> getResidentsByRelativeId(@PathVariable Long relativeId) {
-        var residents=residentQueryServices.handle(new GetResidentsByRelativeIdQuery(relativeId));
+        var residents=residentQueryServices.handle(new GetResidentByRelativeIdQuery(relativeId));
        if (residents.isEmpty()) {return ResponseEntity.notFound().build();}
       var residentsResource=residents.stream().map(ResidentResourceFromEntityAssembler::toResourceFromEntity).toList();
        return ResponseEntity.ok(residentsResource);
     }
+
+
 }

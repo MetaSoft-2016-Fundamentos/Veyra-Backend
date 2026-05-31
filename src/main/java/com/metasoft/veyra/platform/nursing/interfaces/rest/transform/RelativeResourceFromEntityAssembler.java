@@ -5,6 +5,7 @@ import com.metasoft.veyra.platform.nursing.interfaces.rest.resources.RelativeRes
 
 public class RelativeResourceFromEntityAssembler {
     public static RelativeResource toResourceFromEntity(Relative entity) {
-        return new RelativeResource(entity.getId(),entity.getUserId().userId());
+        var userId= entity.getUserId()!=null ? entity.getUserId().userId(): null;
+        return new RelativeResource(entity.getId(),entity.getPersonName().firstName(),entity.getPersonName().lastName(),entity.getEmailAddress().emailAddress(),entity.getResident().getId(),entity.getNursingHome().getId(),userId);
     }
 }

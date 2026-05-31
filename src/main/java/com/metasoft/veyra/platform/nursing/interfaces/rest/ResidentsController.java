@@ -76,4 +76,6 @@ private final ResidentQueryServices residentQueryServices;
       return ResponseEntity.ok(new MessageResource("Resident with given id successfully deleted"));
     }
 
+
+
 }

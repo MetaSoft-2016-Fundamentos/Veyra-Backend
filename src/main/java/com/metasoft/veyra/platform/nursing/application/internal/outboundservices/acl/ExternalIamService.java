@@ -30,7 +30,7 @@ public class ExternalIamService {
      */
     public UserId fetchUserByUsername(String username) {
         Long userId = iamContextFacade.fetchUserIdByUsername(username);
-        if (userId == null) {
+        if (userId == null || userId==0L) {
             return null;
         }
         return new UserId(userId);

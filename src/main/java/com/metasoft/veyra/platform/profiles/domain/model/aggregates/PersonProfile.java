@@ -1,5 +1,6 @@
 package com.metasoft.veyra.platform.profiles.domain.model.aggregates;
 import com.metasoft.veyra.platform.profiles.domain.model.valueobjects.*;
+import com.metasoft.veyra.platform.shared.domain.model.valueobjects.PersonName;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import lombok.Getter;
