@@ -4,10 +4,7 @@ import com.metasoft.veyra.platform.nursing.domain.model.valueobjects.UserId;
 import com.metasoft.veyra.platform.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
 import com.metasoft.veyra.platform.shared.domain.model.valueobjects.EmailAddress;
 import com.metasoft.veyra.platform.shared.domain.model.valueobjects.PersonName;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.Getter;
 @Getter
 @Entity
@@ -20,7 +17,7 @@ public class Relative extends AuditableAbstractAggregateRoot<Relative> {
     @OneToOne()
     @JoinColumn( name = "resident_id")
 private Resident resident;
-@OneToOne()
+@ManyToOne()
 @JoinColumn( name = "nursing_home_id")
 private NursingHome nursingHome;
     public Relative(String emailAddress, String firstName, String lastName, Resident resident,NursingHome nursingHome){
