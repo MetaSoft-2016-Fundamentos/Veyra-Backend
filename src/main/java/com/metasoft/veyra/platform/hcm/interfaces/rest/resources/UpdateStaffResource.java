@@ -1,5 +1,7 @@
 package com.metasoft.veyra.platform.hcm.interfaces.rest.resources;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import java.time.LocalDate;
 
 public record UpdateStaffResource(String dni, String firstName, String lastName,
@@ -8,7 +10,7 @@ public record UpdateStaffResource(String dni, String firstName, String lastName,
                                   String city,
                                   String postalCode,
                                   String country,
-                                  String photoBase64, String phoneNumber
+                                  MultipartFile photo, String phoneNumber
         , String emergencyContactFirstName,
                                   String emergencyContactLastName,
                                   String emergencyContactPhoneNumber) {

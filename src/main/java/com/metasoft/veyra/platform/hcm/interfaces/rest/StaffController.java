@@ -10,6 +10,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,14 +28,14 @@ private final StaffCommandServices staffCommandServices;
     }
 
 
-    @PutMapping("/{staffMemberId}")
+    @PutMapping(value = "/{staffMemberId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = " Staff member updated by ID",description = "Staff member updated by ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",description = " staff member  update"),
             @ApiResponse(responseCode = "404",description = "staff member not found")
     })
     @Parameter(name = "staffMemberId",description = " The unique identifier of the staff member",required = true)
-    public ResponseEntity<StaffResource> updateStaff( @RequestBody UpdateStaffResource resource, @PathVariable Long staffMemberId){
+    public ResponseEntity<StaffResource> updateStaff(@Valid @ModelAttribute UpdateStaffResource resource, @PathVariable Long staffMemberId){
         var updatestaffCommand= UpdateStaffCommandFromAssembler.toCommandFromResource(staffMemberId,resource);
         var staffUpdate=staffCommandServices.handle(updatestaffCommand);
         if (staffUpdate.isEmpty()){return ResponseEntity.badRequest().build();}
