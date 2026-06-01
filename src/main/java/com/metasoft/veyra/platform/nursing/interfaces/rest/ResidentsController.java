@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,21 +33,21 @@ private final ResidentQueryServices residentQueryServices;
         this.residentQueryServices = residentQueryServices;
     }
 
-    @PutMapping("/{residentId}")
+    @PutMapping(value = "/{residentId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Update resident by ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Resident updated"),
             @ApiResponse(responseCode = "404", description = "Resident not found")
     })
     @Parameter(name = "residentId", description = "The unique identifier of the resident", required = true)
-    public ResponseEntity<ResidentResource>updateResident(@PathVariable Long residentId,@Valid @RequestBody UpdateResidentResource resource)
+    public ResponseEntity<ResidentResource> updateResident(@PathVariable Long residentId, @Valid @ModelAttribute UpdateResidentResource resource)
     {
       var updateResidentCommand= UpdateResidentCommandFromResourceAssembler.toCommandFromResource(residentId,resource);
-       var updateResident= residentCommandServices.handle(updateResidentCommand);
-       if (updateResident.isEmpty()){return ResponseEntity.notFound().build();}
-       var residentEntity=updateResident.get();
-       var residentResource= ResidentResourceFromEntityAssembler.toResourceFromEntity(residentEntity);
-       return ResponseEntity.ok(residentResource);
+      var updateResident= residentCommandServices.handle(updateResidentCommand);
+      if (updateResident.isEmpty()){return ResponseEntity.notFound().build();}
+      var residentEntity=updateResident.get();
+      var residentResource= ResidentResourceFromEntityAssembler.toResourceFromEntity(residentEntity);
+      return ResponseEntity.ok(residentResource);
     }
     @GetMapping("/{residentId}")
     @Operation(summary = "Get resident by ID")
