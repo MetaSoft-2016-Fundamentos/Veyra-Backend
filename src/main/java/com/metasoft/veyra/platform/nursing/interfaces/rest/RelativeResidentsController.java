@@ -1,8 +1,13 @@
 package com.metasoft.veyra.platform.nursing.interfaces.rest;
 import com.metasoft.veyra.platform.nursing.domain.model.queries.GetResidentByRelativeIdQuery;
+import com.metasoft.veyra.platform.nursing.domain.services.RelativeCommandService;
 import com.metasoft.veyra.platform.nursing.domain.services.ResidentQueryServices;
+import com.metasoft.veyra.platform.nursing.interfaces.rest.resources.RelativeResource;
 import com.metasoft.veyra.platform.nursing.interfaces.rest.resources.ResidentResource;
+import com.metasoft.veyra.platform.nursing.interfaces.rest.resources.UpdateRelativeResource;
+import com.metasoft.veyra.platform.nursing.interfaces.rest.transform.RelativeResourceFromEntityAssembler;
 import com.metasoft.veyra.platform.nursing.interfaces.rest.transform.ResidentResourceFromEntityAssembler;
+import com.metasoft.veyra.platform.nursing.interfaces.rest.transform.UpdateRelativeCommandFromResourceAssembler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -16,14 +21,16 @@ import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-@RequestMapping(value = "/api/v1/relatives/{relativeId}/residents",produces =APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v1/relatives",produces =APPLICATION_JSON_VALUE)
 @RestController
 @Tag(name = "Relatives")
 public class RelativeResidentsController {
     private final ResidentQueryServices residentQueryServices;
+    private final RelativeCommandService relativeCommandServices;
 
-    public RelativeResidentsController(ResidentQueryServices residentQueryServices) {
-        this.residentQueryServices = residentQueryServices;
+    public RelativeResidentsController(ResidentQueryServices residentQueryService, RelativeCommandService relativeCommandServices) {
+        this.residentQueryServices = residentQueryService;
+        this.relativeCommandServices = relativeCommandServices;
     }
     /**
      * GET /api/v1/relatives/{relativeId}/residents
@@ -38,7 +45,7 @@ public class RelativeResidentsController {
      * @param relativeId The identifier of the relative whose residents should be returned.
      * @return {@link ResponseEntity} containing a list of {@link ResidentResource} or an appropriate status code.
      */
-    @GetMapping
+    @GetMapping("/{relativeId}/residents")
     @Operation(
             summary = "Get residents by relative id",
             description = "Returns a list of residents associated with the given relative id. " +
@@ -58,4 +65,25 @@ public class RelativeResidentsController {
     }
 
 
+    @PutMapping("/{relativeId}")
+    @Operation(summary = "Update relative by ID", description = "Update relative information by ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Relative updated successfully"),
+            @ApiResponse(responseCode = "400", description = "Bad request"),
+            @ApiResponse(responseCode = "404", description = "Relative not found")
+    })
+    @Parameter(name = "relativeId", description = "The unique identifier of the relative (path parameter)", required = true)
+    public ResponseEntity<RelativeResource> updateRelative(@PathVariable Long relativeId,
+                                                           @RequestBody UpdateRelativeResource resource) {
+        var updateRelativeCommand = UpdateRelativeCommandFromResourceAssembler.toCommandFromResource(relativeId, resource);
+        var updatedRelative = relativeCommandServices.handle(updateRelativeCommand);
+
+        if (updatedRelative.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        var relativeEntity = updatedRelative.get(); 
+        var relativeResource = RelativeResourceFromEntityAssembler.toResourceFromEntity(relativeEntity);
+        return ResponseEntity.ok(relativeResource);
+    }
 }
