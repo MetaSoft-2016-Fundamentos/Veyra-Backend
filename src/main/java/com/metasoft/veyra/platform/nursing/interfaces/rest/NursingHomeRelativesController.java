@@ -26,7 +26,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @Tag(name = "Nursing Homes")
-@RequestMapping(value = "/api/v1/nursingHomes/{nursingHomeId}/relatives", produces = APPLICATION_JSON_VALUE )
+@RequestMapping(value = "/api/v1/nursing-homes/{nursingHomeId}/relatives", produces = APPLICATION_JSON_VALUE )
 public class NursingHomeRelativesController {
 private final RelativeCommandService relativeCommandService;
 private final RelativeQueryService relativeQueryService;

@@ -5,11 +5,13 @@ import com.metasoft.veyra.platform.nursing.domain.model.valueobjects.*;
 import com.metasoft.veyra.platform.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
 @Entity
 @Getter
+@Setter
 public class Resident extends AuditableAbstractAggregateRoot<Resident> {
     @Embedded
     private PersonProfileId personProfileId;
