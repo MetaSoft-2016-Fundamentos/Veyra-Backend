@@ -1,5 +1,6 @@
 package com.metasoft.veyra.platform.nursing.application.internal.commandservices;
 
+import com.metasoft.veyra.platform.nursing.application.internal.outboundservices.acl.ExternalHcmService;
 import com.metasoft.veyra.platform.nursing.application.internal.outboundservices.acl.ExternalProfileService;
 import com.metasoft.veyra.platform.nursing.domain.exceptions.*;
 import com.metasoft.veyra.platform.nursing.domain.model.commands.*;
@@ -11,6 +12,7 @@ import com.metasoft.veyra.platform.nursing.infrastructure.persistence.jpa.reposi
 import com.metasoft.veyra.platform.nursing.infrastructure.persistence.jpa.repositories.ResidentRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 /**
@@ -27,7 +29,7 @@ public class ResidentCommandServiceImpl implements ResidentCommandServices {
     private final ExternalProfileService externalProfileService;
     private final ResidentRepository residentRepository;
     private final NursingHomeRepository nursingHomeRepository;
-
+    private final ExternalHcmService externalHcmService;
     /**
      * Constructor of the class.
      * @param externalProfileService the external profile service to be used by the class.
@@ -36,10 +38,11 @@ public class ResidentCommandServiceImpl implements ResidentCommandServices {
      */
     public ResidentCommandServiceImpl(ExternalProfileService externalProfileService,
                                       ResidentRepository residentRepository,
-                                      NursingHomeRepository nursingHomeRepository) {
+                                      NursingHomeRepository nursingHomeRepository, ExternalHcmService externalHcmService) {
         this.externalProfileService = externalProfileService;
         this.residentRepository = residentRepository;
         this.nursingHomeRepository = nursingHomeRepository;
+        this.externalHcmService = externalHcmService;
     }
 
     @Override
@@ -159,6 +162,21 @@ public class ResidentCommandServiceImpl implements ResidentCommandServices {
 
     @Override
     public void handle(AssignedStaffMemberToResidentCommand command) {
+        var nursingHome = nursingHomeRepository.findById(command.nursingHomeId())
+                .orElseThrow(() -> new NursingHomeNotFoundException(command.nursingHomeId()));
+
+        var resident = residentRepository.findById(command.residentId())
+                .orElseThrow(() -> new ResidentNotFoundException(command.residentId()));
+        if (!resident.getNursingHome().getId().equals(command.nursingHomeId())) {
+            throw new ResidentNotBelongToNursingHomeException(command.residentId(), command.nursingHomeId());
+        }
+
+        var staffMember = externalHcmService.getStaffMemberWithNurseRoleAndActiveContract(command.staffMemberId(), command.nursingHomeId())
+                .orElseThrow(() -> new NoSuchElementException("No se encontró al miembro del personal con el ID: " + command.staffMemberId() + " o no tiene el rol de enfermero con un contrato activo en esta casa de reposo."));
+        resident.assignedStaffToResidentCommand(staffMember.getId());
+        residentRepository.save(resident);
+
+
     }
 
     @Override

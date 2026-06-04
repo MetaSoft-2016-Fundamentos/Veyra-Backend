@@ -67,5 +67,26 @@ public class StaffQueryServiceImpl implements StaffQueryServices {
         return staffRepository.findById(query.staffId()).map(staff->staff.getContractHistory().getLastAddedContract());
     }
 
+    @Override
+    public List<Staff> handle(GetAllActiveStaffByContractWithNurseRoleByNursingHomeIdQuery query) {
+        return staffRepository.findByNursingHomeId(query.nursingHomeId())
+                .stream()
+                .filter(staff -> "ACTIVE".equals(staff.getStaffStatus().name()))
+                .filter(staff -> staff.getContractHistory().getAllContracts().stream()
+                        .anyMatch(contract -> contract.getStaffRole() != null && 
+                                             "NURSE".equals(contract.getStaffRole().name())))
+                .toList();
+    }
 
+    @Override
+    public Optional<Staff> handle(GetStaffMemberWithNurseRoleAndActiveContractQuery query) {
+        return staffRepository.findById(query.staffId())
+                .filter(staff -> staff.getNursingHomeId().equals(query.nursingHomeId()))
+                .filter(staff -> "ACTIVE".equals(staff.getStaffStatus().name()))
+                .filter(staff -> staff.getContractHistory().getAllContracts().stream()
+                        .anyMatch(contract -> contract.getStaffRole() != null &&
+                                "NURSE".equals(contract.getStaffRole().name()) &&
+                                contract.isActive()))
+                .or(Optional::empty);
+    }
 }

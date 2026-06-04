@@ -2,6 +2,7 @@ package com.metasoft.veyra.platform.nursing.interfaces.rest.resources;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 
@@ -25,11 +26,12 @@ public record UpdateResidentResource(@NotBlank(message = "DNI is required") Stri
 
                          @NotBlank(message = "Postal code is required")String postalCode,
 
-                         @NotBlank(message = "Country is required") String country,
+                          @NotBlank(message = "Country is required") String country,
 
-                         @NotBlank(message = "Photo Base64 is required")String photoBase64,
+                          @NotNull(message = "Photo data is required")
+                          MultipartFile photo,
 
-                         @NotBlank(message = "Phone number is required") String phoneNumber,
+                          @NotBlank(message = "Phone number is required") String phoneNumber,
 
                          @NotBlank(message = "Legal representative first name is required")String legalRepresentativeFirstName,
 
