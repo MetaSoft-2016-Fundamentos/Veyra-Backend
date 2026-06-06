@@ -5,6 +5,7 @@ import com.metasoft.veyra.platform.activities.domain.model.commands.CompleteActi
 import com.metasoft.veyra.platform.activities.domain.model.commands.CreateActivityCommand;
 import com.metasoft.veyra.platform.activities.domain.model.commands.DeleteActivityCommand;
 import com.metasoft.veyra.platform.activities.domain.model.commands.UpdateActivityCommand;
+import com.metasoft.veyra.platform.activities.application.internal.outboundservices.acl.ExternalNursingService;
 import com.metasoft.veyra.platform.activities.domain.services.ActivityCommandService;
 import com.metasoft.veyra.platform.activities.infrastructure.persistence.jpa.repositories.ActivityRepository;
 import org.springframework.stereotype.Service;
@@ -22,18 +23,25 @@ import java.util.Optional;
 public class ActivityCommandServiceImpl implements ActivityCommandService {
 
     private final ActivityRepository activityRepository;
+    private final ExternalNursingService externalNursingService;
 
     /**
      * Constructor of the class.
      * @param activityRepository the repository used for Activity persistence
+     * @param externalNursingService the ACL service for nursing context validation
      */
-    public ActivityCommandServiceImpl(ActivityRepository activityRepository) {
+    public ActivityCommandServiceImpl(ActivityRepository activityRepository, ExternalNursingService externalNursingService) {
         this.activityRepository = activityRepository;
+        this.externalNursingService = externalNursingService;
     }
 
     // inherit javadoc
     @Override
     public Long handle(CreateActivityCommand command) {
+        if (!externalNursingService.existsNursingHomeById(command.nursingHomeId()))
+            throw new IllegalArgumentException("Nursing home with id %s not found".formatted(command.nursingHomeId()));
+        if (!externalNursingService.existsResidentById(command.residentId()))
+            throw new IllegalArgumentException("Resident with id %s not found".formatted(command.residentId()));
         var activity = new Activity(command);
         try {
             activityRepository.save(activity);
