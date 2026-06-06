@@ -1,0 +1,99 @@
+@startuml
+' Bounded Context: activities
+
+package "application.internal.commandservices" {
+  class ActivityCommandServiceImpl
+}
+package "application.queryservices" {
+  class ActivityQueryServiceImpl
+}
+package "application.outboundservices.acl" {
+  interface ActivityExternalServices
+}
+
+package "domain.model.aggregates" {
+  class Activity {
+    +ActivityId id
+    +ActivityPeriod period
+    +ActivityStatus status
+    +Area area
+    +List~ResidentId~ residents
+    +List~StaffMemberId~ staffMembers
+  }
+}
+
+package "domain.model.commands" {
+  class CreateActivityCommand
+  class CancelActivityCommand
+  class CompleteActivityCommand
+}
+
+package "domain.model.queries" {
+  class GetActivitiesByDateAndNursingHomeQuery
+  class GetActivityByIdQuery
+}
+
+package "domain.model.valueobjects" {
+  class ActivityPeriod
+  class ActivityStatus
+  class ActivityView
+  class Area
+  class NursingHomeId
+  class ResidentId
+  class StaffMemberId
+}
+
+package "domain.services" {
+  interface ActivityCommandService
+  interface ActivityQueryService
+}
+
+package "infrastructure.persistence.jpa.repositories" {
+  interface ActivityRepository
+}
+
+package "interfaces.rest" {
+  class ActivitiesController
+}
+package "interfaces.rest.resources" {
+  class ActivityResource
+  class CreateActivityResource
+}
+package "interfaces.rest.transform" {
+  class ActivityResourceFromViewAssembler
+  class CreateActivityCommandFromResourceAssembler
+}
+
+' Relaciones entre elementos
+Activity *-- ActivityPeriod : "has 1"
+Activity .. ActivityStatus
+Activity .. Area
+Activity *-- ResidentId : "participants 0..*"
+Activity *-- StaffMemberId : "staff 0..*"
+
+ActivityRepository <|.. ActivityCommandServiceImpl
+ActivityRepository <|.. ActivityQueryServiceImpl
+
+ActivityCommandService <|.. ActivityCommandServiceImpl
+ActivityQueryService <|.. ActivityQueryServiceImpl
+
+ActivityCommandServiceImpl --> ActivityExternalServices : uses
+ActivityCommandServiceImpl --> ActivityRepository : uses
+ActivityQueryServiceImpl --> ActivityRepository : uses
+
+ActivitiesController --> ActivityCommandService : uses
+ActivitiesController --> ActivityQueryService : uses
+
+CreateActivityResource --> CreateActivityCommandFromResourceAssembler
+ActivityResourceFromViewAssembler --> ActivityView
+ActivityResourceFromViewAssembler --> Activity : reads
+
+' Commands/Queries -> Services
+CreateActivityCommand --> ActivityCommandService : execute
+CancelActivityCommand --> ActivityCommandService : execute
+CompleteActivityCommand --> ActivityCommandService : execute
+
+GetActivitiesByDateAndNursingHomeQuery --> ActivityQueryService : execute
+GetActivityByIdQuery --> ActivityQueryService : execute
+
+@enduml

@@ -1,0 +1,14 @@
+@startuml
+title Bounded Context: Health
+
+entity "vital_signs" as vital_signs {
+  * id : BIGINT
+  --
+  created_at     : DATETIME(6)
+  updated_at     : DATETIME(6)
+  measurement_id : BIGINT
+  resident_id    : BIGINT
+  severity_level : ENUM(...)
+}
+
+@enduml

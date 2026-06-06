@@ -1,0 +1,101 @@
+@startuml
+' Bounded Context: tracking
+
+package "application.internal.commandservices" {
+  class MeasurementCommandServiceImpl
+}
+
+package "application.eventhandlers" {
+  class TrackingApplicationReadyEventHandler
+}
+
+package "application.internal.queryservices" {
+  class MeasurementQueryServiceImpl
+}
+
+package "domain.model.aggregates" {
+  class Measurement {
+    +MeasurementId id
+    +DeviceId deviceId
+    +ResidentId residentId
+    +Instant recordedAt
+    +Temperature temperature
+    +HeartRate heartRate
+    +RespiratoryRate respiratoryRate
+    +OxygenSaturation oxygenSaturation
+    +BloodPressure bloodPressure
+  }
+}
+
+package "domain.model.commands" {
+  class SeedMeasurementCommand
+  class CreateMeasurementCommand
+}
+
+package "domain.model.queries" {
+  class GetAllMeasurementQuery
+  class GetMeasurementsByResidentQuery
+}
+
+package "domain.model.valueobjects" {
+  class DeviceId
+  class ResidentId
+  class Temperature
+  class HeartRate
+  class RespiratoryRate
+  class OxygenSaturation
+  class BloodPressure
+}
+
+package "domain.services" {
+  interface MeasurementCommandService
+  interface MeasurementQueryService
+}
+
+package "infrastructure.persistence.jpa.repositories" {
+  interface MeasurementRepository
+}
+
+package "interfaces.rest" {
+  class MeasurementsController
+  package "resources" {
+    class MeasurementResource
+  }
+  package "transform" {
+    class MeasurementResourceFromEntityAssembler
+  }
+}
+
+' Relationships
+Measurement *-- DeviceId
+Measurement *-- ResidentId
+Measurement *-- Temperature
+Measurement *-- HeartRate
+Measurement *-- RespiratoryRate
+Measurement *-- OxygenSaturation
+Measurement *-- BloodPressure
+
+MeasurementRepository <|.. MeasurementCommandServiceImpl
+MeasurementRepository <|.. MeasurementQueryServiceImpl
+
+MeasurementCommandService <|.. MeasurementCommandServiceImpl
+MeasurementQueryService <|.. MeasurementQueryServiceImpl
+
+MeasurementCommandServiceImpl --> MeasurementRepository : uses
+MeasurementQueryServiceImpl --> MeasurementRepository : uses
+
+MeasurementsController --> MeasurementCommandService : uses
+MeasurementsController --> MeasurementQueryService : uses
+
+MeasurementResourceFromEntityAssembler --> Measurement : reads
+MeasurementResource --> MeasurementResourceFromEntityAssembler
+
+SeedMeasurementCommand --> MeasurementCommandService : execute
+CreateMeasurementCommand --> MeasurementCommandService : execute
+
+GetAllMeasurementQuery --> MeasurementQueryService : execute
+GetMeasurementsByResidentQuery --> MeasurementQueryService : execute
+
+TrackingApplicationReadyEventHandler --> MeasurementCommandServiceImpl : uses
+
+@enduml

@@ -1,0 +1,664 @@
+@startuml
+skinparam linetype ortho
+hide circle
+
+' ============================================================
+' BACKEND COMPLETO AGRUPADO POR BOUNDED CONTEXTS
+' ============================================================
+package "Backend" {
+
+  ' ======================= SHARED BACKEND =======================
+  package "Shared Backend" {
+
+    package "domain.model.aggregates" {
+      abstract class AuditableAbstractAggregateRoot {
+        +id : UUID
+        +createdAt : Instant
+        +updatedAt : Instant
+      }
+    }
+
+    package "domain.model.entities" {
+      class AuditableModel {
+        +createdBy : String
+        +createdAt : Instant
+        +updatedAt : Instant
+      }
+    }
+
+    package "infrastructure.persistence.jpa.strategy" {
+      interface PhysicalNamingStrategy
+      class SnakeCasePhysicalNamingStrategy <<strategy>>
+    }
+
+    package "infrastructure.persistence.jpa.configuration.strategy" {
+      class SnakeCaseWithPluralizedTablePhysicalNamingStrategy <<strategy>>
+    }
+
+    package "infrastructure.documentation.openapi.configuration" {
+      class OpenApiConfiguration <<configuration>>
+    }
+
+    package "interfaces.rest.resources" {
+      class MessageResource
+    }
+
+    AuditableModel <|-- AuditableAbstractAggregateRoot
+    PhysicalNamingStrategy <|.. SnakeCasePhysicalNamingStrategy
+    PhysicalNamingStrategy <|.. SnakeCaseWithPluralizedTablePhysicalNamingStrategy
+    OpenApiConfiguration --> MessageResource : uses
+  }
+
+  ' ======================= NURSING BACKEND =======================
+  package "Nursing Backend" {
+
+    package "domain.model.aggregates" {
+      class NursingHome {
+        +NursingHomeId id
+      }
+      class Resident {
+        +ResidentId id
+      }
+      class Room {
+        +RoomId id
+      }
+      class Medication {
+        +MedicationId id
+      }
+      class MedicationAdministration {
+        +MedicationAdministrationId id
+      }
+    }
+
+    package "domain.model.valueobjects" {
+      class ResidentStatus
+      class RoomStatus
+      class MedicationDosage
+    }
+
+    package "application.internal.commandservices" {
+      class NursingHomeCommandService
+      class ResidentCommandService
+      class RoomCommandService
+      class MedicationCommandService
+      class MedicationAdministrationCommandService
+    }
+
+    package "application.internal.queryservices" {
+      class NursingHomeQueryService
+      class ResidentQueryService
+      class RoomQueryService
+      class MedicationQueryService
+      class MedicationAdministrationQueryService
+    }
+
+    package "infrastructure.persistence.jpa.repositories" {
+      interface NursingHomeRepository
+      interface ResidentRepository
+      interface RoomRepository
+      interface MedicationRepository
+      interface MedicationAdministrationRepository
+    }
+
+    package "interfaces.rest.resources" {
+      class NursingHomeResource
+      class ResidentResource
+      class RoomResource
+      class MedicationResource
+      class MedicationAdministrationResource
+    }
+
+    package "interfaces.rest.transform" {
+      class NursingHomeResourceAssembler
+      class ResidentResourceAssembler
+      class RoomResourceAssembler
+      class MedicationResourceAssembler
+      class MedicationAdministrationResourceAssembler
+    }
+
+    package "interfaces.rest.controllers" {
+      class NursingHomesController
+      class ResidentsController
+      class RoomsController
+      class MedicationsController
+      class MedicationAdministrationsController
+    }
+
+    ' Herencia de base auditable
+    AuditableAbstractAggregateRoot <|-- NursingHome
+    AuditableAbstractAggregateRoot <|-- Resident
+    AuditableAbstractAggregateRoot <|-- Room
+    AuditableAbstractAggregateRoot <|-- Medication
+    AuditableAbstractAggregateRoot <|-- MedicationAdministration
+
+    ' Relaciones internas
+    Resident --> NursingHome : belongsTo
+    Room --> NursingHome : belongsTo
+    MedicationAdministration --> Medication : for
+    MedicationAdministration --> Resident : to
+
+    NursingHomesController --> NursingHomeCommandService
+    NursingHomesController --> NursingHomeQueryService
+    ResidentsController --> ResidentCommandService
+    ResidentsController --> ResidentQueryService
+    RoomsController --> RoomCommandService
+    RoomsController --> RoomQueryService
+    MedicationsController --> MedicationCommandService
+    MedicationsController --> MedicationQueryService
+    MedicationAdministrationsController --> MedicationAdministrationCommandService
+    MedicationAdministrationsController --> MedicationAdministrationQueryService
+
+    NursingHomeCommandService --> NursingHomeRepository
+    NursingHomeQueryService --> NursingHomeRepository
+    ResidentCommandService --> ResidentRepository
+    ResidentQueryService --> ResidentRepository
+    RoomCommandService --> RoomRepository
+    RoomQueryService --> RoomRepository
+    MedicationCommandService --> MedicationRepository
+    MedicationQueryService --> MedicationRepository
+    MedicationAdministrationCommandService --> MedicationAdministrationRepository
+    MedicationAdministrationQueryService --> MedicationAdministrationRepository
+
+    NursingHomeResourceAssembler --> NursingHome
+    NursingHomeResourceAssembler --> NursingHomeResource
+    ResidentResourceAssembler --> Resident
+    ResidentResourceAssembler --> ResidentResource
+    RoomResourceAssembler --> Room
+    RoomResourceAssembler --> RoomResource
+    MedicationResourceAssembler --> Medication
+    MedicationResourceAssembler --> MedicationResource
+    MedicationAdministrationResourceAssembler --> MedicationAdministration
+    MedicationAdministrationResourceAssembler --> MedicationAdministrationResource
+  }
+
+  ' ======================= HCM BACKEND =======================
+  package "HCM Backend" {
+
+    package "domain.model.aggregates" {
+      class Staff {
+        +StaffId id
+      }
+    }
+
+    package "domain.model.entities" {
+      class Contract {
+        +ContractId id
+      }
+    }
+
+    package "domain.model.valueobjects" {
+      class StaffStatus
+      class StaffRole
+      class ContractPeriod
+      class TypeOfContract
+      class WorkShift
+    }
+
+    package "domain.model.events" {
+      class EmployeeHiredEvent
+      class EmployeeSuspendedEvent
+      class EmployeeTerminatedEvent
+    }
+
+    package "application.internal.commandservices" {
+      class StaffCommandService
+    }
+
+    package "application.internal.queryservices" {
+      class StaffQueryService
+    }
+
+    package "application.eventhandlers" {
+      class EmployeeEventHandler
+    }
+
+    package "infrastructure.persistence.jpa.repositories" {
+      interface StaffRepository
+      interface ContractRepository
+    }
+
+    package "interfaces.rest.resources" {
+      class StaffResource
+      class ContractResource
+      class CreateStaffResource
+      class UpdateStaffResource
+    }
+
+    package "interfaces.rest.transform" {
+      class StaffResourceAssembler
+      class ContractResourceAssembler
+    }
+
+    package "interfaces.rest.controllers" {
+      class StaffController
+      class NursingHomesStaffController
+      class StaffContractHistoryController
+    }
+
+    ' Herencia de base auditable
+    AuditableAbstractAggregateRoot <|-- Staff
+
+    ' Relaciones internas
+    Staff --> Contract : contracts 0..*
+    StaffCommandService --> StaffRepository
+    StaffCommandService --> ContractRepository
+    StaffQueryService --> StaffRepository
+    StaffQueryService --> ContractRepository
+    EmployeeEventHandler --> StaffCommandService
+
+    StaffController --> StaffCommandService
+    StaffController --> StaffQueryService
+    NursingHomesStaffController --> StaffQueryService
+    StaffContractHistoryController --> StaffQueryService
+
+    StaffResourceAssembler --> Staff
+    StaffResourceAssembler --> StaffResource
+    ContractResourceAssembler --> Contract
+    ContractResourceAssembler --> ContractResource
+  }
+
+  ' ======================= IAM BACKEND =======================
+  package "IAM Backend" {
+
+    package "domain.model.aggregates" {
+      class User {
+        +UserId id
+      }
+    }
+
+    package "domain.model.entities" {
+      class Role {
+        +RoleId id
+      }
+      class UserRoleAssignment
+    }
+
+    package "domain.model.valueobjects" {
+      class Username
+      class EncryptedPassword
+    }
+
+    package "application.internal.commandservices" {
+      class UserCommandService
+      class AuthCommandService
+    }
+
+    package "application.internal.queryservices" {
+      class UserQueryService
+    }
+
+    package "application.eventhandlers" {
+      class UserCreatedEventHandler
+    }
+
+    package "infrastructure.persistence.jpa.repositories" {
+      interface UserRepository
+      interface RoleRepository
+      interface UserRoleRepository
+    }
+
+    package "interfaces.rest.resources" {
+      class UserResource
+      class CreateUserResource
+      class LoginResource
+      class TokenResource
+    }
+
+    package "interfaces.rest.transform" {
+      class UserResourceAssembler
+      class CreateUserCommandAssembler
+      class LoginCommandAssembler
+    }
+
+    package "interfaces.rest.controllers" {
+      class UsersController
+      class AuthController
+    }
+
+    AuditableAbstractAggregateRoot <|-- User
+
+    User --> UserRoleAssignment : roles 0..*
+    UserRoleAssignment --> Role
+
+    UsersController --> UserCommandService
+    UsersController --> UserQueryService
+    AuthController --> AuthCommandService
+
+    UserCommandService --> UserRepository
+    UserQueryService --> UserRepository
+    AuthCommandService --> UserRepository
+
+    UserResourceAssembler --> User
+    UserResourceAssembler --> UserResource
+  }
+
+  ' ======================= ANALYTICS BACKEND =======================
+  package "Analytics Backend" {
+
+    package "domain.model.aggregates" {
+      class Metric {
+        +MetricId id
+        +NursingHomeId nursingHomeId
+        +MetricType type
+        +MetricCategory category
+        +Number value
+        +Instant recordedAt
+      }
+    }
+
+    package "domain.model.commands" {
+      class RecordMetricCommand
+    }
+
+    package "domain.model.queries" {
+      class GetResidentActivesByNursingHomeIdAndYearQuery
+      class GetResidentAdmissionsByNursingHomeIdAndDateRangeQuery
+      class GetResidentAdmissionsByNursingHomeIdAndYearAndMonthQuery
+      class GetStaffActivesByNursingHomeIdAndYearQuery
+    }
+
+    package "application.internal.commandservices" {
+      class MetricCommandServiceImpl
+    }
+
+    package "application.internal.queryservices" {
+      class MetricQueryServiceImpl
+    }
+
+    package "application.eventhandlers" {
+      class AdmittedResidentEventHandler
+      class HiredEmployeeEventHandler
+      class RetiredResidentEventHandler
+      class SuspendedEmployeeEventHandler
+      class TerminationEmployeeEventHandler
+    }
+
+    package "infrastructure.persistence.jpa.repositories" {
+      interface MetricRepository
+    }
+
+    package "interfaces.rest.resources" {
+      class MetricResource
+    }
+
+    package "interfaces.rest.controllers" {
+      class MetricsController
+    }
+
+    AuditableAbstractAggregateRoot <|-- Metric
+
+    MetricCommandServiceImpl --> MetricRepository
+    MetricQueryServiceImpl --> MetricRepository
+    MetricsController --> MetricQueryServiceImpl
+
+    AdmittedResidentEventHandler --> MetricCommandServiceImpl
+    HiredEmployeeEventHandler --> MetricCommandServiceImpl
+    RetiredResidentEventHandler --> MetricCommandServiceImpl
+    SuspendedEmployeeEventHandler --> MetricCommandServiceImpl
+    TerminationEmployeeEventHandler --> MetricCommandServiceImpl
+  }
+
+  ' ======================= HEALTH BACKEND =======================
+  package "Health Backend" {
+
+    package "domain.model.aggregates" {
+      class VitalSign {
+        +VitalSignId id
+      }
+    }
+
+    package "domain.model.valueobjects" {
+      class SeverityLevel
+    }
+
+    package "application.internal.commandservices" {
+      class VitalSignCommandService
+    }
+
+    package "application.internal.queryservices" {
+      class VitalSignQueryService
+    }
+
+    package "infrastructure.persistence.jpa.repositories" {
+      interface VitalSignRepository
+    }
+
+    package "interfaces.rest.resources" {
+      class VitalSignResource
+    }
+
+    package "interfaces.rest.controllers" {
+      class VitalSignsController
+    }
+
+    AuditableAbstractAggregateRoot <|-- VitalSign
+
+    VitalSignsController --> VitalSignCommandService
+    VitalSignsController --> VitalSignQueryService
+    VitalSignCommandService --> VitalSignRepository
+    VitalSignQueryService --> VitalSignRepository
+  }
+
+  ' ======================= PROFILES BACKEND =======================
+  package "Profiles Backend" {
+
+    package "domain.model.aggregates" {
+      class PersonProfile {
+        +PersonProfileId id
+      }
+      class BusinessProfile {
+        +BusinessProfileId id
+      }
+    }
+
+    package "application.internal.commandservices" {
+      class ProfilesCommandService
+    }
+
+    package "application.internal.queryservices" {
+      class ProfilesQueryService
+    }
+
+    package "infrastructure.persistence.jpa.repositories" {
+      interface PersonProfileRepository
+      interface BusinessProfileRepository
+    }
+
+    package "interfaces.rest.resources" {
+      class PersonProfileResource
+      class BusinessProfileResource
+    }
+
+    package "interfaces.rest.controllers" {
+      class PersonProfilesController
+      class BusinessProfilesController
+    }
+
+    AuditableAbstractAggregateRoot <|-- PersonProfile
+    AuditableAbstractAggregateRoot <|-- BusinessProfile
+
+    PersonProfilesController --> ProfilesCommandService
+    PersonProfilesController --> ProfilesQueryService
+    BusinessProfilesController --> ProfilesCommandService
+    BusinessProfilesController --> ProfilesQueryService
+
+    ProfilesCommandService --> PersonProfileRepository
+    ProfilesCommandService --> BusinessProfileRepository
+    ProfilesQueryService --> PersonProfileRepository
+    ProfilesQueryService --> BusinessProfileRepository
+  }
+
+  ' ======================= TRACKING BACKEND =======================
+  package "Tracking Backend" {
+
+    package "domain.model.aggregates" {
+      class Measurement {
+        +MeasurementId id
+      }
+    }
+
+    package "domain.model.valueobjects" {
+      class HeartRate
+      class RespiratoryRate
+      class OxygenSaturation
+      class BloodPressure
+      class Temperature
+      class DeviceId
+      class ResidentIdVO
+    }
+
+    package "application.internal.commandservices" {
+      class MeasurementCommandServiceImpl
+    }
+
+    package "application.internal.queryservices" {
+      class MeasurementQueryServiceImpl
+    }
+
+    package "application.eventhandlers" {
+      class TrackingApplicationReadyEventHandler
+    }
+
+    package "infrastructure.persistence.jpa.repositories" {
+      interface MeasurementRepository
+    }
+
+    package "interfaces.rest.resources" {
+      class MeasurementResource
+    }
+
+    package "interfaces.rest.transform" {
+      class MeasurementResourceAssembler
+    }
+
+    package "interfaces.rest.controllers" {
+      class MeasurementsController
+    }
+
+    AuditableAbstractAggregateRoot <|-- Measurement
+
+    MeasurementsController --> MeasurementCommandServiceImpl
+    MeasurementsController --> MeasurementQueryServiceImpl
+    MeasurementCommandServiceImpl --> MeasurementRepository
+    MeasurementQueryServiceImpl --> MeasurementRepository
+    MeasurementResourceAssembler --> Measurement
+    MeasurementResourceAssembler --> MeasurementResource
+
+    TrackingApplicationReadyEventHandler --> MeasurementCommandServiceImpl
+  }
+
+  ' ======================= PAYMENTS BACKEND =======================
+  package "Payments Backend" {
+
+    package "domain.model.aggregates" {
+      class Subscription {
+        +SubscriptionId id
+      }
+      class Payment {
+        +PaymentId id
+      }
+    }
+
+    package "domain.model.valueobjects" {
+      class Money
+      class Period
+      class PaymentStatus
+      class SubscriptionStatus
+    }
+
+    package "application.internal.commandservices" {
+      class PaymentsCommandService
+    }
+
+    package "application.internal.queryservices" {
+      class PaymentsQueryService
+    }
+
+    package "infrastructure.persistence.jpa.repositories" {
+      interface SubscriptionRepository
+      interface PaymentRepository
+    }
+
+    package "interfaces.rest.resources" {
+      class SubscriptionResource
+      class PaymentResource
+    }
+
+    package "interfaces.rest.controllers" {
+      class SubscriptionsController
+      class PaymentsController
+    }
+
+    AuditableAbstractAggregateRoot <|-- Subscription
+    AuditableAbstractAggregateRoot <|-- Payment
+
+    SubscriptionsController --> PaymentsCommandService
+    SubscriptionsController --> PaymentsQueryService
+    PaymentsController --> PaymentsCommandService
+    PaymentsController --> PaymentsQueryService
+
+    PaymentsCommandService --> SubscriptionRepository
+    PaymentsCommandService --> PaymentRepository
+    PaymentsQueryService --> SubscriptionRepository
+    PaymentsQueryService --> PaymentRepository
+  }
+
+  ' ======================= ACTIVITIES BACKEND =======================
+  package "Activities Backend" {
+
+    package "domain.model.aggregates" {
+      class Activity {
+        +ActivityId id
+      }
+    }
+
+    package "domain.model.valueobjects" {
+      class ActivityStatus
+      class ActivityPeriod
+      class Area
+      class NursingHomeIdVO
+      class StaffMemberIdVO
+      class ResidentIdForActivity
+    }
+
+    package "application.internal.commandservices" {
+      class ActivityCommandServiceImpl
+    }
+
+    package "application.internal.queryservices" {
+      class ActivityQueryServiceImpl
+    }
+
+    package "infrastructure.persistence.jpa.repositories" {
+      interface ActivityRepository
+    }
+
+    package "interfaces.rest.resources" {
+      class ActivityResource
+      class CreateActivityResource
+    }
+
+    package "interfaces.rest.transform" {
+      class ActivityResourceAssembler
+      class CreateActivityCommandAssembler
+    }
+
+    package "interfaces.rest.controllers" {
+      class ActivitiesController
+    }
+
+    AuditableAbstractAggregateRoot <|-- Activity
+
+    ActivitiesController --> ActivityCommandServiceImpl
+    ActivitiesController --> ActivityQueryServiceImpl
+    ActivityCommandServiceImpl --> ActivityRepository
+    ActivityQueryServiceImpl --> ActivityRepository
+
+    ActivityResourceAssembler --> Activity
+    ActivityResourceAssembler --> ActivityResource
+    CreateActivityCommandAssembler --> CreateActivityResource
+    CreateActivityCommandAssembler --> ActivityCommandServiceImpl
+  }
+}
+
+@enduml

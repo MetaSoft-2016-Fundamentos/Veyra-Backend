@@ -1,0 +1,109 @@
+@startuml
+' Bounded Context: analytics
+
+package "application.internal.commandservices" {
+  class MetricCommandServiceImpl
+}
+
+package "application.eventhandlers" {
+  class AdmittedResidentEventHandler
+  class HiredEmployeeEventHandler
+  class RetiredResidentEventHandler
+  class SuspendedEmployeeEventHandler
+  class TerminationEmployeeEventHandler
+}
+
+package "application.internal.queryservices" {
+  class MetricQueryServiceImpl
+}
+
+package "domain.model.aggregates" {
+  class Metric {
+    +MetricId id
+    +NursingHomeId nursingHomeId
+    +MetricType type
+    +MetricCategory category
+    +Number value
+    +Instant recordedAt
+  }
+}
+
+package "domain.model.commands" {
+  class RecordMetricCommand
+}
+
+package "domain.model.queries" {
+  class GetResidentActivesByNursingHomeIdAndYearQuery
+  class GetResidentAdmissionsByNursingHomeIdAndDateRangeQuery
+  class GetResidentAdmissionsByNursingHomeIdAndYearAndMonthQuery
+  class GetResidentAdmissionsByNursingHomeIdAndYearQuery
+  class GetStaffHiresByNursingHomeIdAndYearAndMonthQuery
+  class GetStaffHiresByNursingHomeIdAndYearQuery
+  class GetStaffTerminationsByNursingHomeIdAndYearAndMonthQuery
+  class GetStaffTerminationsByNursingHomeIdAndYearQuery
+}
+
+package "domain.model.valueobjects" {
+  class MetricCategory
+  class MetricType
+  class NursingHomeId
+}
+
+package "domain.services" {
+  interface MetricCommandService
+  interface MetricQueryService
+}
+
+package "infrastructure.persistence.jpa.repositories" {
+  interface MetricRepository
+}
+
+package "interfaces.rest" {
+  class NursingHomeAnalyticsController
+  package "resources" {
+    class MetricResource
+  }
+  package "transform" {
+    class MetricResourceFromEntityAssembler
+  }
+}
+
+' Relationships
+Metric .. MetricCategory
+Metric .. MetricType
+Metric .. NursingHomeId
+
+MetricRepository <|.. MetricCommandServiceImpl
+MetricRepository <|.. MetricQueryServiceImpl
+
+MetricCommandService <|.. MetricCommandServiceImpl
+MetricQueryService <|.. MetricQueryServiceImpl
+
+MetricCommandServiceImpl --> MetricRepository : uses
+MetricQueryServiceImpl --> MetricRepository : uses
+
+NursingHomeAnalyticsController --> MetricQueryService : uses
+NursingHomeAnalyticsController --> MetricCommandService : uses
+
+MetricResourceFromEntityAssembler --> Metric : reads
+MetricResource --> MetricResourceFromEntityAssembler
+
+RecordMetricCommand --> MetricCommandService : execute
+
+GetResidentActivesByNursingHomeIdAndYearQuery --> MetricQueryService : execute
+GetResidentAdmissionsByNursingHomeIdAndDateRangeQuery --> MetricQueryService : execute
+GetResidentAdmissionsByNursingHomeIdAndYearAndMonthQuery --> MetricQueryService : execute
+GetResidentAdmissionsByNursingHomeIdAndYearQuery --> MetricQueryService : execute
+GetStaffHiresByNursingHomeIdAndYearAndMonthQuery --> MetricQueryService : execute
+GetStaffHiresByNursingHomeIdAndYearQuery --> MetricQueryService : execute
+GetStaffTerminationsByNursingHomeIdAndYearAndMonthQuery --> MetricQueryService : execute
+GetStaffTerminationsByNursingHomeIdAndYearQuery --> MetricQueryService : execute
+
+' Event handlers use command service to record derived metrics
+AdmittedResidentEventHandler --> MetricCommandServiceImpl : uses
+HiredEmployeeEventHandler --> MetricCommandServiceImpl : uses
+RetiredResidentEventHandler --> MetricCommandServiceImpl : uses
+SuspendedEmployeeEventHandler --> MetricCommandServiceImpl : uses
+TerminationEmployeeEventHandler --> MetricCommandServiceImpl : uses
+
+@enduml

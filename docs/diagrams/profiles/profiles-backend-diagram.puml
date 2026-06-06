@@ -1,0 +1,156 @@
+@startuml
+' Bounded Context: profiles
+
+package "application.acl" {
+  interface ProfilesContextFacade
+  class ProfileContextFacadeImpl <<implements ProfilesContextFacade>>
+}
+
+package "application.internal.commandservices" {
+  class BusinessProfileCommandServiceImpl
+  class PersonProfileCommandServiceImpl
+}
+
+package "application.internal.queryservices" {
+  class BusinessProfileQueryServiceImpl
+  class PersonProfileQueryServiceImpl
+}
+
+package "domain.model.aggregates" {
+  abstract class Profile {
+    +ProfileId id
+  }
+  class BusinessProfile {
+    +BusinessProfileId id
+    +BusinessName name
+    +Ruc ruc
+  }
+  class PersonProfile {
+    +PersonProfileId id
+    +PersonName name
+    +Dni dni
+  }
+}
+
+package "domain.model.entities" {
+  class HeadQuarter
+}
+
+package "domain.model.valueobjects" {
+  class Age
+  class BirthDate
+  class BusinessName
+  class Dni
+  class EmailAddress
+  class PersonName
+  class PhoneNumber
+  class Photo
+  class Ruc
+  class StreetAddress
+}
+
+package "domain.model.commands" {
+  class CreateBusinessProfileCommand
+  class CreatePersonProfileCommand
+  class DeletePersonProfileCommand
+  class UpdatePersonProfileCommand
+}
+
+package "domain.model.queries" {
+  class GetAllBusinessProfileQuery
+  class GetBusinessProfileByIdQuery
+  class GetBusinessProfileByRucQuery
+  class GetAllPersonProfileQuery
+  class GetPersonProfileByIdQuery
+  class GetPersonProfileByDniQuery
+}
+
+package "domain.services" {
+  interface BusinessProfileCommandService
+  interface BusinessProfileQueryService
+  interface PersonProfileCommandService
+  interface PersonProfileQueryService
+}
+
+package "infrastructure.persistence.jpa.repositories" {
+  interface BusinessProfileRepository
+  interface PersonProfileRepository
+}
+
+package "interfaces" {
+  class BusinessProfilesController
+  class PersonProfilesController
+  package "rest.resources" {
+    class BusinessProfileResource
+    class CreateBusinessProfileResource
+    class CreatePersonProfileResource
+    class PersonProfileResource
+    class UpdatePersonProfileResource
+  }
+  package "transform" {
+    class BusinessProfileResourceFromEntityAssembler
+    class CreateBusinessProfileCommandFromResourceAssembler
+    class CreatePersonProfileCommandFromResourceAssembler
+    class PersonProfileResourceFromEntityAssembler
+    class UpdatePersonProfileCommandFromResourceAssembler
+  }
+  package "acl" {
+    interface ProfilesContextFacade
+  }
+}
+
+' Aggregate relationships
+Profile <|-- BusinessProfile
+Profile <|-- PersonProfile
+BusinessProfile *-- HeadQuarter : contains
+BusinessProfile .. BusinessName
+BusinessProfile .. Ruc
+PersonProfile .. PersonName
+PersonProfile .. Dni
+PersonProfile .. BirthDate
+PersonProfile .. Age
+
+' Services and implementations
+BusinessProfileCommandService <|.. BusinessProfileCommandServiceImpl
+PersonProfileCommandService <|.. PersonProfileCommandServiceImpl
+BusinessProfileQueryService <|.. BusinessProfileQueryServiceImpl
+PersonProfileQueryService <|.. PersonProfileQueryServiceImpl
+
+' Repositories used by services
+BusinessProfileRepository <.. BusinessProfileCommandServiceImpl
+BusinessProfileRepository <.. BusinessProfileQueryServiceImpl
+PersonProfileRepository <.. PersonProfileCommandServiceImpl
+PersonProfileRepository <.. PersonProfileQueryServiceImpl
+
+' Controllers use services
+BusinessProfilesController --> BusinessProfileCommandService : uses
+BusinessProfilesController --> BusinessProfileQueryService : uses
+PersonProfilesController --> PersonProfileCommandService : uses
+PersonProfilesController --> PersonProfileQueryService : uses
+
+' Facade aggregates service access
+ProfileContextFacadeImpl --> BusinessProfileCommandService : delegates
+ProfileContextFacadeImpl --> BusinessProfileQueryService : delegates
+ProfileContextFacadeImpl --> PersonProfileCommandService : delegates
+ProfileContextFacadeImpl --> PersonProfileQueryService : delegates
+
+' Resources and assemblers
+CreateBusinessProfileResource --> CreateBusinessProfileCommandFromResourceAssembler
+CreatePersonProfileResource --> CreatePersonProfileCommandFromResourceAssembler
+BusinessProfileResourceFromEntityAssembler --> BusinessProfile
+PersonProfileResourceFromEntityAssembler --> PersonProfile
+
+' Commands/Queries -> Services
+CreateBusinessProfileCommand --> BusinessProfileCommandService : execute
+CreatePersonProfileCommand --> PersonProfileCommandService : execute
+UpdatePersonProfileCommand --> PersonProfileCommandService : execute
+DeletePersonProfileCommand --> PersonProfileCommandService : execute
+
+GetBusinessProfileByIdQuery --> BusinessProfileQueryService : execute
+GetBusinessProfileByRucQuery --> BusinessProfileQueryService : execute
+GetAllBusinessProfileQuery --> BusinessProfileQueryService : execute
+GetPersonProfileByIdQuery --> PersonProfileQueryService : execute
+GetPersonProfileByDniQuery --> PersonProfileQueryService : execute
+GetAllPersonProfileQuery --> PersonProfileQueryService : execute
+
+@enduml

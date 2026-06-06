@@ -1,0 +1,79 @@
+@startuml
+title Bounded Context: Nursing
+
+entity "nursing_homes" as nursing_homes {
+  * id : BIGINT
+  --
+  created_at        : DATETIME(6)
+  updated_at        : DATETIME(6)
+  business_profile_id : BIGINT
+}
+
+entity "residents" as residents {
+  * id : BIGINT
+  --
+  created_at                         : DATETIME(6)
+  updated_at                         : DATETIME(6)
+  emergency_firstname                : VARCHAR(255)
+  emergency_lastname                 : VARCHAR(255)
+  emergency_phone_number             : VARCHAR(255)
+  legal_representative_firstname     : VARCHAR(255)
+  legal_representative_lastname      : VARCHAR(255)
+  legal_representative_phone_number  : VARCHAR(255)
+  person_profile_id                  : BIGINT
+  resident_status                    : ENUM(...)
+  nursing_home_id                    : BIGINT
+  staff_member_id                    : BIGINT
+}
+
+entity "rooms" as rooms {
+  * id : BIGINT
+  --
+  created_at      : DATETIME(6)
+  updated_at      : DATETIME(6)
+  room_number     : VARCHAR(255)
+  capacity        : INT
+  occupied        : INT
+  room_status     : ENUM(...)
+  type            : VARCHAR(255)
+  nursing_home_id : BIGINT
+  resident_id     : BIGINT
+}
+
+entity "medications" as medications {
+  * id : BIGINT
+  --
+  created_at        : DATETIME(6)
+  updated_at        : DATETIME(6)
+  low_stock_threshold : INT
+  description       : VARCHAR(255)
+  dosage            : VARCHAR(255)
+  drug_presentation : ENUM(...)
+  expiration_date   : DATE
+  name              : VARCHAR(255)
+  amount            : INT
+  resident_id       : BIGINT
+}
+
+entity "medication_administrations" as medication_administrations {
+  * id : BIGINT
+  --
+  created_at          : DATETIME(6)
+  updated_at          : DATETIME(6)
+  administered_at     : DATETIME(6)
+  notes               : VARCHAR(500)
+  quantity_administered : INT
+  staff_member_id     : BIGINT
+  was_administered    : BIT(1)
+  medication_id       : BIGINT
+  resident_id         : BIGINT
+}
+
+nursing_homes ||--o{ residents                  : "1..*"
+nursing_homes ||--o{ rooms                      : "1..*"
+residents      ||--o{ rooms                     : "0..*"
+residents      ||--o{ medications               : "1..*"
+residents      ||--o{ medication_administrations: "1..*"
+medications    ||--o{ medication_administrations: "1..*"
+
+@enduml

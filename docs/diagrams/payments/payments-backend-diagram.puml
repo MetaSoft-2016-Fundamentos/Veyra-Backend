@@ -1,0 +1,208 @@
+@startuml
+' Bounded Context: payments
+
+package "application.internal.commandservices" {
+  class PaymentCommandServiceImpl
+  class SubscriptionCommandServiceImpl
+}
+
+package "application.internal.queryservices" {
+  class PaymentQueryServiceImpl
+  class SubscriptionQueryServiceImpl
+}
+
+package "application.internal.outboundservices.acl" {
+  class ExternalIamService
+}
+
+package "domain.exceptions" {
+  class DuplicateActiveSubscriptionException
+  class InvalidSubscriptionStateException
+  class PaymentNotFoundException
+  class StripeServiceException
+  class SubscriptionNotFoundException
+}
+
+package "domain.model.aggregates" {
+  class Payment {
+    +Amount amount
+    +PaymentStatus status
+    +UserId userId
+  }
+
+  class Subscription {
+    +PlanType planType
+    +SubscriptionPeriod period
+    +SubscriptionStatus status
+    +UserId userId
+  }
+}
+
+package "domain.model.commands" {
+  class CancelSubscriptionCommand
+  class CreateSubscriptionCommand
+  class ProcessPaymentCommand
+  class UpdateSubscriptionCommand
+}
+
+package "domain.model.events" {
+  class PaymentFailedEvent
+  class PaymentSucceededEvent
+  class SubscriptionCanceledEvent
+  class SubscriptionCreatedEvent
+}
+
+package "domain.model.queries" {
+  class GetPaymentByIdQuery
+  class GetPaymentByStripePaymentIntentIdQuery
+  class GetPaymentBySubscriptionIdQuery
+  class GetPaymentsByUserIdQuery
+  class GetSubscriptionActiveByUserIdQuery
+  class GetSubscriptionByIdQuery
+  class GetSubscriptionByStripeSubscriptionIdQuery
+  class GetSubscriptionByUserIdQuery
+}
+
+package "domain.model.valueobjects" {
+  class Amount
+  class PaymentStatus
+  class PlanType
+  class SubscriptionPeriod
+  class SubscriptionStatus
+  class UserId
+}
+
+package "domain.services" {
+  interface PaymentCommandService
+  interface PaymentQueryService
+  interface SubscriptionCommandService
+  interface SubscriptionQueryService
+}
+
+package "infrastructure.persistence.jpa.repositories" {
+  interface PaymentRepository
+  interface SubscriptionRepository
+}
+
+package "infrastructure.persistence.stripe.service" {
+  interface StripeService
+  class StripeServiceImpl
+}
+
+package "infrastructure.persistence.stripe.webhooks" {
+  class StripeWebhookHandler
+}
+
+package "interfaces.rest.resources" {
+  class CreateSubscriptionResource
+  class PaymentResource
+  class ProcessPaymentResource
+  class SubscriptionResource
+  class UpdateSubscriptionResource
+}
+
+package "interfaces.rest.transform" {
+  class CreateSubscriptionCommandFromResourceAssembler
+  class PaymentResourceFromEntityAssembler
+  class ProcessPaymentCommandFromResourceAssembler
+  class SubscriptionResourceFromEntityAssembler
+  class UpdateSubscriptionCommandFromResourceAssembler
+
+  class PaymentsController
+  class SubscriptionPaymentsController
+  class UserSubscriptionsController
+}
+
+' ---------------- Relationships ----------------
+
+' Aggregates & value objects
+Payment ..> Amount
+Payment ..> PaymentStatus
+Payment ..> UserId
+
+Subscription ..> PlanType
+Subscription ..> SubscriptionPeriod
+Subscription ..> SubscriptionStatus
+Subscription ..> UserId
+
+' Repositories manage aggregates
+PaymentRepository --> Payment
+SubscriptionRepository --> Subscription
+
+' Service implementations
+PaymentCommandServiceImpl ..|> PaymentCommandService
+PaymentQueryServiceImpl   ..|> PaymentQueryService
+SubscriptionCommandServiceImpl ..|> SubscriptionCommandService
+SubscriptionQueryServiceImpl   ..|> SubscriptionQueryService
+
+' Command / query services use repositories and outbound services
+PaymentCommandServiceImpl --> PaymentRepository
+PaymentCommandServiceImpl --> StripeService
+PaymentQueryServiceImpl   --> PaymentRepository
+
+SubscriptionCommandServiceImpl --> SubscriptionRepository
+SubscriptionCommandServiceImpl --> ExternalIamService
+SubscriptionQueryServiceImpl   --> SubscriptionRepository
+
+' Stripe infrastructure
+StripeServiceImpl ..|> StripeService
+StripeServiceImpl ..> StripeServiceException
+StripeWebhookHandler --> StripeService
+StripeWebhookHandler --> PaymentCommandServiceImpl
+StripeWebhookHandler --> SubscriptionCommandServiceImpl
+
+' Commands handled by command services
+ProcessPaymentCommand --> PaymentCommandService : execute
+CreateSubscriptionCommand --> SubscriptionCommandService : execute
+UpdateSubscriptionCommand --> SubscriptionCommandService : execute
+CancelSubscriptionCommand --> SubscriptionCommandService : execute
+
+' Queries handled by query services
+GetPaymentByIdQuery --> PaymentQueryService : execute
+GetPaymentByStripePaymentIntentIdQuery --> PaymentQueryService : execute
+GetPaymentBySubscriptionIdQuery --> PaymentQueryService : execute
+GetPaymentsByUserIdQuery --> PaymentQueryService : execute
+
+GetSubscriptionActiveByUserIdQuery --> SubscriptionQueryService : execute
+GetSubscriptionByIdQuery --> SubscriptionQueryService : execute
+GetSubscriptionByStripeSubscriptionIdQuery --> SubscriptionQueryService : execute
+GetSubscriptionByUserIdQuery --> SubscriptionQueryService : execute
+
+' Events emitted from aggregates / services
+PaymentFailedEvent --> Payment
+PaymentSucceededEvent --> Payment
+SubscriptionCreatedEvent --> Subscription
+SubscriptionCanceledEvent --> Subscription
+
+' Controllers use services and assemblers
+PaymentsController --> PaymentCommandService
+PaymentsController --> PaymentQueryService
+PaymentsController --> PaymentResourceFromEntityAssembler
+PaymentsController --> ProcessPaymentCommandFromResourceAssembler
+
+SubscriptionPaymentsController --> SubscriptionCommandService
+SubscriptionPaymentsController --> SubscriptionQueryService
+SubscriptionPaymentsController --> CreateSubscriptionCommandFromResourceAssembler
+SubscriptionPaymentsController --> UpdateSubscriptionCommandFromResourceAssembler
+SubscriptionPaymentsController --> SubscriptionResourceFromEntityAssembler
+
+UserSubscriptionsController --> SubscriptionQueryService
+UserSubscriptionsController --> SubscriptionResourceFromEntityAssembler
+
+' Assemblers map between resources, commands, and aggregates
+PaymentResourceFromEntityAssembler --> Payment
+PaymentResourceFromEntityAssembler --> PaymentResource
+
+ProcessPaymentCommandFromResourceAssembler --> ProcessPaymentResource
+ProcessPaymentCommandFromResourceAssembler --> ProcessPaymentCommand
+
+CreateSubscriptionCommandFromResourceAssembler --> CreateSubscriptionResource
+CreateSubscriptionCommandFromResourceAssembler --> CreateSubscriptionCommand
+
+UpdateSubscriptionCommandFromResourceAssembler --> UpdateSubscriptionResource
+UpdateSubscriptionCommandFromResourceAssembler --> UpdateSubscriptionCommand
+
+SubscriptionResourceFromEntityAssembler --> Subscription
+SubscriptionResourceFromEntityAssembler --> SubscriptionResource
+
+@enduml

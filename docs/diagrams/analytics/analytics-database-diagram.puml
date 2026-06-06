@@ -1,0 +1,16 @@
+@startuml
+title Bounded Context: Analytics
+
+entity "metrics" as metrics {
+  * id : BIGINT
+  --
+  created_at      : DATETIME(6)
+  updated_at      : DATETIME(6)
+  event_date      : DATE
+  metric_category : ENUM(...)
+  metric_type     : ENUM(...)
+  nursing_home_id : BIGINT
+  value           : BIGINT
+}
+
+@enduml

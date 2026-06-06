@@ -1,0 +1,41 @@
+@startuml
+title Bounded Context: Profiles
+
+entity "person_profiles" as person_profiles {
+  * id : BIGINT
+  --
+  created_at   : DATETIME(6)
+  updated_at   : DATETIME(6)
+  email_address: VARCHAR(255)
+  phone_number : VARCHAR(255)
+  photo        : LONGTEXT
+  street       : VARCHAR(255)
+  number       : VARCHAR(255)
+  city         : VARCHAR(255)
+  postal_code  : VARCHAR(255)
+  country      : VARCHAR(255)
+  age          : INT
+  birth_date   : DATE
+  dni          : VARCHAR(255)
+  first_name   : VARCHAR(255)
+  last_name    : VARCHAR(255)
+}
+
+entity "business_profiles" as business_profiles {
+  * id : BIGINT
+  --
+  created_at    : DATETIME(6)
+  updated_at    : DATETIME(6)
+  email_address : VARCHAR(255)
+  phone_number  : VARCHAR(255)
+  photo         : LONGTEXT
+  street        : VARCHAR(255)
+  number        : VARCHAR(255)
+  city          : VARCHAR(255)
+  postal_code   : VARCHAR(255)
+  country       : VARCHAR(255)
+  business_name : VARCHAR(255)
+  ruc           : VARCHAR(255)
+}
+
+@enduml

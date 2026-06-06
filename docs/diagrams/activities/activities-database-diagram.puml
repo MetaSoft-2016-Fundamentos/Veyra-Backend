@@ -1,0 +1,20 @@
+@startuml
+title Bounded Context: Activities
+
+entity "activities" as activities {
+  * id : BIGINT
+  --
+  created_at      : DATETIME(6)
+  updated_at      : DATETIME(6)
+  activity_date   : DATE
+  area_code       : VARCHAR(255)
+  name            : VARCHAR(255)
+  nursing_home_id : BIGINT
+  end_time        : TIME
+  start_time      : TIME
+  resident_id     : BIGINT
+  staff_member_id : BIGINT
+  status          : ENUM(...)
+}
+
+@enduml

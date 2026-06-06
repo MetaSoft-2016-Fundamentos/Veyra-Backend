@@ -1,0 +1,20 @@
+@startuml
+title Bounded Context: Tracking
+
+entity "measurements" as measurements {
+  * id : BIGINT
+  --
+  created_at        : DATETIME(6)
+  updated_at        : DATETIME(6)
+  systolic          : INT
+  diastolic         : INT
+  device_id         : VARCHAR(255)
+  heart_rate        : INT
+  oxygen_saturation : INT
+  resident_id       : BIGINT
+  respiratory_rate  : INT
+  temperature       : DOUBLE
+  timestamp         : DATETIME(6)
+}
+
+@enduml

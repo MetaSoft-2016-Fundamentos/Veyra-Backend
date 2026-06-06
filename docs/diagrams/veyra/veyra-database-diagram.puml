@@ -1,0 +1,289 @@
+@startuml
+hide circle
+skinparam linetype ortho
+
+' ===================== NURSING =====================
+package "Nursing Context" {
+
+  entity "nursing_homes" as nursing_homes {
+    * id : BIGINT
+    --
+    created_at        : DATETIME(6)
+    updated_at        : DATETIME(6)
+    business_profile_id : BIGINT
+  }
+
+  entity "residents" as residents {
+    * id : BIGINT
+    --
+    created_at                        : DATETIME(6)
+    updated_at                        : DATETIME(6)
+    emergency_firstname               : VARCHAR(255)
+    emergency_lastname                : VARCHAR(255)
+    emergency_phone_number            : VARCHAR(255)
+    legal_representative_firstname    : VARCHAR(255)
+    legal_representative_lastname     : VARCHAR(255)
+    legal_representative_phone_number : VARCHAR(255)
+    person_profile_id                 : BIGINT
+    resident_status                   : ENUM(...)
+    nursing_home_id                   : BIGINT
+    staff_member_id                   : BIGINT
+  }
+
+  entity "medications" as medications {
+    * id : BIGINT
+    --
+    created_at         : DATETIME(6)
+    updated_at         : DATETIME(6)
+    low_stock_threshold: INT
+    description        : VARCHAR(255)
+    dosage             : VARCHAR(255)
+    drug_presentation  : ENUM(...)
+    expiration_date    : DATE
+    name               : VARCHAR(255)
+    amount             : INT
+    resident_id        : BIGINT
+  }
+
+  entity "rooms" as rooms {
+    * id : BIGINT
+    --
+    created_at      : DATETIME(6)
+    updated_at      : DATETIME(6)
+    room_number     : VARCHAR(255)
+    capacity        : INT
+    occupied        : INT
+    room_status     : ENUM(...)
+    type            : VARCHAR(255)
+    nursing_home_id : BIGINT
+    resident_id     : BIGINT
+  }
+
+  entity "medication_administrations" as medication_administrations {
+    * id : BIGINT
+    --
+    created_at           : DATETIME(6)
+    updated_at           : DATETIME(6)
+    administered_at      : DATETIME(6)
+    notes                : VARCHAR(500)
+    quantity_administered: INT
+    staff_member_id      : BIGINT
+    was_administered     : BIT(1)
+    medication_id        : BIGINT
+    resident_id          : BIGINT
+  }
+}
+
+' ===================== HCM =====================
+package "HCM Context" {
+
+  entity "staff" as staff {
+    * id : BIGINT
+    --
+    created_at       : DATETIME
+    updated_at       : DATETIME
+    first_name       : VARCHAR
+    last_name        : VARCHAR
+    phone_number     : VARCHAR
+    person_profile_id: BIGINT
+    nursing_home_id  : BIGINT
+  }
+
+  entity "contracts" as contracts {
+    * id : BIGINT
+    --
+    created_at      : DATETIME
+    updated_at      : DATETIME
+    start_date      : DATE
+    end_date        : DATE
+    contract_status : ENUM
+    staff_role      : ENUM
+    type_of_contract: VARCHAR
+    work_shift      : ENUM
+    staff_id        : BIGINT
+  }
+}
+
+' ===================== IAM =====================
+package "IAM Context" {
+
+  entity "users" as users {
+    * id : BIGINT
+    --
+    created_at : DATETIME(6)
+    updated_at : DATETIME(6)
+    password   : VARCHAR(120)
+    username   : VARCHAR(50)
+  }
+
+  entity "roles" as roles {
+    * id : BIGINT
+    --
+    name : ENUM(...)
+  }
+
+  entity "user_roles" as user_roles {
+    * user_id : BIGINT
+    * role_id : BIGINT
+  }
+}
+
+' ===================== ANALYTICS =====================
+package "Analytics Context" {
+
+  entity "metrics" as metrics {
+    * id : BIGINT
+    --
+    created_at     : DATETIME(6)
+    updated_at     : DATETIME(6)
+    event_date     : DATE
+    metric_category: ENUM(...)
+    metric_type    : ENUM(...)
+    nursing_home_id: BIGINT
+    value          : BIGINT
+  }
+}
+
+' ===================== HEALTH =====================
+package "Health Context" {
+
+  entity "vital_signs" as vital_signs {
+    * id : BIGINT
+    --
+    created_at    : DATETIME(6)
+    updated_at    : DATETIME(6)
+    measurement_id: BIGINT
+    resident_id   : BIGINT
+    severity_level: ENUM(...)
+  }
+}
+
+' ===================== PROFILES =====================
+package "Profiles Context" {
+
+  entity "person_profiles" as person_profiles {
+    * id : BIGINT
+    --
+    created_at   : DATETIME(6)
+    updated_at   : DATETIME(6)
+    email_address: VARCHAR(255)
+    phone_number : VARCHAR(255)
+    photo        : LONGTEXT
+    street       : VARCHAR(255)
+    number       : VARCHAR(255)
+    city         : VARCHAR(255)
+    postal_code  : VARCHAR(255)
+    country      : VARCHAR(255)
+    age          : INT
+    birth_date   : DATE
+    dni          : VARCHAR(255)
+    first_name   : VARCHAR(255)
+    last_name    : VARCHAR(255)
+  }
+
+  entity "business_profiles" as business_profiles {
+    * id : BIGINT
+    --
+    created_at    : DATETIME(6)
+    updated_at    : DATETIME(6)
+    email_address : VARCHAR(255)
+    phone_number  : VARCHAR(255)
+    photo         : LONGTEXT
+    street        : VARCHAR(255)
+    number        : VARCHAR(255)
+    city          : VARCHAR(255)
+    postal_code   : VARCHAR(255)
+    country       : VARCHAR(255)
+    business_name : VARCHAR(255)
+    ruc           : VARCHAR(255)
+  }
+}
+
+' ===================== TRACKING =====================
+package "Tracking Context" {
+
+  entity "measurements" as measurements {
+    * id : BIGINT
+    --
+    created_at      : DATETIME(6)
+    updated_at      : DATETIME(6)
+    systolic        : INT
+    diastolic       : INT
+    device_id       : VARCHAR(255)
+    heart_rate      : INT
+    oxygen_saturation: INT
+    resident_id     : BIGINT
+    respiratory_rate: INT
+    temperature     : DOUBLE
+    timestamp       : DATETIME(6)
+  }
+}
+
+' ===================== PAYMENTS =====================
+package "Payments Context" {
+
+  entity "subscriptions" as subscriptions {
+    * id : BIGINT
+    --
+    created_at          : DATETIME(6)
+    updated_at          : DATETIME(6)
+    amount_value        : DECIMAL(38,2)
+    amount_currency     : VARCHAR(255)
+    canceled_at         : DATETIME(6)
+    current_period_end  : DATETIME(6)
+    current_period_start: DATETIME(6)
+    period              : ENUM(...)
+    plan_type           : ENUM(...)
+    status              : ENUM(...)
+    stripe_customer_id  : VARCHAR(255)
+    stripe_subscription_id: VARCHAR(255)
+    user_id             : BIGINT
+  }
+
+  entity "payments" as payments {
+    * id : BIGINT
+    --
+    created_at          : DATETIME(6)
+    updated_at          : DATETIME(6)
+    amount_value        : DECIMAL(38,2)
+    amount_currency     : VARCHAR(255)
+    failure_message     : VARCHAR(255)
+    status              : ENUM(...)
+    stripe_payment_intent_id: VARCHAR(255)
+    stripe_receipt_url  : VARCHAR(1000)
+    subscription_id     : BIGINT
+    user_id             : BIGINT
+  }
+}
+
+' ===================== RELATIONSHIPS (FKs) =====================
+
+' Only internal (same-context) relationships are represented below.
+' Any cross-context relationships were intentionally removed to preserve bounded-context boundaries.
+
+' --- Nursing context internals ---
+nursing_homes ||--o{ residents                 : "1..*"
+residents      ||--o{ medications              : "1..*"
+residents      ||--o{ rooms                    : "0..*"
+medications    ||--o{ medication_administrations : "1..*"
+residents      ||--o{ medication_administrations : "1..*"
+
+' --- HCM context internals ---
+staff      ||--o{ contracts : "1..*"
+
+' --- IAM context internals ---
+users      ||--o{ user_roles : "1..*"
+roles      ||--o{ user_roles : "1..*"
+
+' --- Payments context internals ---
+subscriptions ||--o{ payments      : "1..*"
+
+' Final notes:
+' - All cross-context foreign-key style relationships have been removed from this diagram.
+' - Columns that reference other contexts (for example: `resident_id`, `user_id`, `nursing_home_id`) MAY remain as plain ID columns in their tables but MUST NOT be modeled as DB-level foreign keys here.
+' - To relate data across bounded contexts prefer application-level patterns:
+'   * Store simple ID references and resolve them at the application/service layer.
+'   * Use domain events to propagate changes between contexts and keep read-models in sync.
+'   * Create dedicated read-models or projections for queries that need to combine data owned by multiple contexts.
+
+@enduml

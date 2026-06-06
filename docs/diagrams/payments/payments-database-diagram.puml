@@ -1,0 +1,38 @@
+@startuml
+title Bounded Context: Payments
+
+entity "subscriptions" as subscriptions {
+  * id : BIGINT
+  --
+  created_at              : DATETIME(6)
+  updated_at              : DATETIME(6)
+  amount_value            : DECIMAL(38,2)
+  amount_currency         : VARCHAR(255)
+  canceled_at             : DATETIME(6)
+  current_period_end      : DATETIME(6)
+  current_period_start    : DATETIME(6)
+  period                  : ENUM(...)
+  plan_type               : ENUM(...)
+  status                  : ENUM(...)
+  stripe_customer_id      : VARCHAR(255)
+  stripe_subscription_id  : VARCHAR(255)
+  user_id                 : BIGINT
+}
+
+entity "payments" as payments {
+  * id : BIGINT
+  --
+  created_at              : DATETIME(6)
+  updated_at              : DATETIME(6)
+  amount_value            : DECIMAL(38,2)
+  amount_currency         : VARCHAR(255)
+  failure_message         : VARCHAR(255)
+  status                  : ENUM(...)
+  stripe_payment_intent_id: VARCHAR(255)
+  stripe_receipt_url      : VARCHAR(1000)
+  subscription_id         : BIGINT
+  user_id                 : BIGINT
+}
+
+subscriptions ||--o{ payments : "1..*"
+@enduml

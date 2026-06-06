@@ -1,0 +1,142 @@
+@startuml
+' Bounded Context: health
+
+package "application.internal.commandservices" {
+  class AllergyCommandServiceImpl
+  class VitalSignCommandServiceImpl
+}
+
+package "application.internal.queryservices" {
+  class AllergyQueryServiceImpl
+  class VitalSignQueryServiceImpl
+}
+
+package "application.internal.eventhandlers" {
+  class AbnormalVitalSignDetectedEventHandler
+}
+
+package "application.internal.outboundservices.acl" {
+  class ExternalNursingService
+  class ExternalTrackingService
+}
+
+package "domain.model.aggregates" {
+  class Allergy
+  class VitalSign
+}
+
+package "domain.model.commands" {
+  class RegisterAllergyCommand
+  class RegisterVitalSignCommand
+  class ValidateVitalSignCommand
+}
+
+package "domain.model.events" {
+  class AbnormalVitalSignDetectedEvent
+}
+
+package "domain.model.queries" {
+  class ExistsAllergyByResidentIdQuery
+  class ExistsVitalSignsByResidentIdQuery
+  class GetAllergiesByResidentIdQuery
+  class GetAllergyByIdQuery
+  class GetVitalSignsByResidentIdQuery
+  class GetVitalSignsByIdQuery
+}
+
+package "domain.model.valueobjects" {
+  class MeasurementId
+  class ResidentId
+  class SeverityLevel
+  class TypeOfAllergy
+}
+
+package "domain.services" {
+  interface AllergyCommandService
+  interface AllergyQueryService
+  interface VitalSignCommandService
+  interface VitalSignQueryService
+}
+
+package "infrastructure.persistence.jpa.repositories" {
+  interface AllergyRepository
+  interface VitalSignRepository
+}
+
+package "interfaces.rest.resources" {
+  class AllergyResource
+  class RegisterAllergyResource
+  class RegisterVitalSignResource
+  class VitalSignResource
+}
+
+package "interfaces.rest.transform" {
+  class AllergyResourceFromEntityAssembler
+  class RegisterAllergyCommandFromResourceAssembler
+  class RegisterSignVitalCommandFromResourceAssembler
+  class VitalSignResourceFromEntityAssembler
+  class ResidentAllergiesController
+  class VitalSignsController
+}
+
+Allergy --> ResidentId
+Allergy --> TypeOfAllergy
+Allergy --> SeverityLevel
+
+VitalSign --> ResidentId
+VitalSign --> MeasurementId
+VitalSign --> SeverityLevel
+
+AllergyRepository --> Allergy
+VitalSignRepository --> VitalSign
+
+AllergyCommandServiceImpl ..|> AllergyCommandService
+AllergyQueryServiceImpl   ..|> AllergyQueryService
+VitalSignCommandServiceImpl ..|> VitalSignCommandService
+VitalSignQueryServiceImpl   ..|> VitalSignQueryService
+
+AllergyCommandService --> RegisterAllergyCommand
+VitalSignCommandService --> RegisterVitalSignCommand
+VitalSignCommandService --> ValidateVitalSignCommand
+
+AllergyQueryService --> ExistsAllergyByResidentIdQuery
+AllergyQueryService --> GetAllergiesByResidentIdQuery
+AllergyQueryService --> GetAllergyByIdQuery
+
+VitalSignQueryService --> ExistsVitalSignsByResidentIdQuery
+VitalSignQueryService --> GetVitalSignsByResidentIdQuery
+VitalSignQueryService --> GetVitalSignsByIdQuery
+
+AllergyCommandService --> AllergyRepository
+AllergyQueryService   --> AllergyRepository
+VitalSignCommandService --> VitalSignRepository
+VitalSignQueryService   --> VitalSignRepository
+
+AbnormalVitalSignDetectedEventHandler --> AbnormalVitalSignDetectedEvent
+AbnormalVitalSignDetectedEvent --> VitalSign
+AbnormalVitalSignDetectedEventHandler --> ExternalNursingService
+AbnormalVitalSignDetectedEventHandler --> ExternalTrackingService
+
+ResidentAllergiesController --> AllergyCommandServiceImpl
+ResidentAllergiesController --> AllergyQueryServiceImpl
+ResidentAllergiesController --> AllergyResourceFromEntityAssembler
+ResidentAllergiesController --> RegisterAllergyCommandFromResourceAssembler
+
+VitalSignsController --> VitalSignCommandServiceImpl
+VitalSignsController --> VitalSignQueryServiceImpl
+VitalSignsController --> VitalSignResourceFromEntityAssembler
+VitalSignsController --> RegisterSignVitalCommandFromResourceAssembler
+
+AllergyResourceFromEntityAssembler --> Allergy
+AllergyResourceFromEntityAssembler --> AllergyResource
+
+VitalSignResourceFromEntityAssembler --> VitalSign
+VitalSignResourceFromEntityAssembler --> VitalSignResource
+
+RegisterAllergyCommandFromResourceAssembler --> RegisterAllergyResource
+RegisterAllergyCommandFromResourceAssembler --> RegisterAllergyCommand
+
+RegisterSignVitalCommandFromResourceAssembler --> RegisterVitalSignResource
+RegisterSignVitalCommandFromResourceAssembler --> RegisterVitalSignCommand
+
+@enduml
