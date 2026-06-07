@@ -111,6 +111,7 @@ public class WebSecurityConfiguration {
                                 "/api/v1/push-notifications/**",
                                 "/api/v1/users/*/push-tokens/**",
                                 "/api/v1/users/*/notifications/**",
+                                "/ws/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",

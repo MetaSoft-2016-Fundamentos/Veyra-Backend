@@ -21,6 +21,9 @@ public record CreateConversationCommand(
         if (participantUserIds == null || participantUserIds.size() < 2) {
             throw new IllegalArgumentException("A conversation requires at least 2 participants");
         }
+        if (participantUserIds.stream().distinct().count() != participantUserIds.size()) {
+            throw new IllegalArgumentException("Participant user IDs must be unique");
+        }
         if (type == ConversationType.DIRECT && participantUserIds.size() != 2) {
             throw new IllegalArgumentException("A direct conversation must have exactly 2 participants");
         }

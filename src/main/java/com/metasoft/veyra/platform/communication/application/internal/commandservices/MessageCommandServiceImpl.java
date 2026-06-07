@@ -7,11 +7,13 @@ import com.metasoft.veyra.platform.communication.domain.model.aggregates.Convers
 import com.metasoft.veyra.platform.communication.domain.model.aggregates.Message;
 import com.metasoft.veyra.platform.communication.domain.model.commands.SendMessageCommand;
 import com.metasoft.veyra.platform.communication.domain.model.commands.SendPushNotificationToUserCommand;
+import com.metasoft.veyra.platform.communication.domain.model.events.MessageSentEvent;
 import com.metasoft.veyra.platform.communication.domain.model.valueobjects.MessageContent;
 import com.metasoft.veyra.platform.communication.domain.services.MessageCommandService;
 import com.metasoft.veyra.platform.communication.domain.services.PushNotificationCommandService;
 import com.metasoft.veyra.platform.communication.infrastructure.persistence.jpa.repositories.ConversationRepository;
 import com.metasoft.veyra.platform.communication.infrastructure.persistence.jpa.repositories.MessageRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,17 +24,20 @@ public class MessageCommandServiceImpl implements MessageCommandService {
     private final ConversationRepository conversationRepository;
     private final ExternalIamService externalIamService;
     private final PushNotificationCommandService pushNotificationCommandService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public MessageCommandServiceImpl(
             MessageRepository messageRepository,
             ConversationRepository conversationRepository,
             ExternalIamService externalIamService,
-            PushNotificationCommandService pushNotificationCommandService
+            PushNotificationCommandService pushNotificationCommandService,
+            ApplicationEventPublisher eventPublisher
     ) {
         this.messageRepository = messageRepository;
         this.conversationRepository = conversationRepository;
         this.externalIamService = externalIamService;
         this.pushNotificationCommandService = pushNotificationCommandService;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -52,6 +57,9 @@ public class MessageCommandServiceImpl implements MessageCommandService {
 
         conversation.updateLastMessageAt();
         conversationRepository.save(conversation);
+
+        // Publish domain event — broadcast happens AFTER_COMMIT via MessageBroadcastEventHandler
+        eventPublisher.publishEvent(new MessageSentEvent(message));
 
         // Send push notification to all other participants (best-effort, non-blocking)
         conversation.getParticipants().stream()
