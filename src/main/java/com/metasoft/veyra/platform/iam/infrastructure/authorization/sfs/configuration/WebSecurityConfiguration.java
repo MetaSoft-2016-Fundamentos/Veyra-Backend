@@ -105,7 +105,9 @@ public class WebSecurityConfiguration {
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers(
                                 "/api/v1/authentication/**",
+                                "/api/v1/administrators",
                                 "/api/v1/administrators/**",
+                                "/api/v1/relatives",
                                 "/api/v1/relatives/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html",
