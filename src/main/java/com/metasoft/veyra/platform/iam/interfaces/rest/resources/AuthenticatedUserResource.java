@@ -9,6 +9,6 @@ import java.util.List;
  * @param username the username of the user
  * @param token    the authentication token
  */
-public record AuthenticatedUserResource(Long id, String username, List<String> roles, String token) {
+public record AuthenticatedUserResource(Long id, String username, List<String> roles, String token,Long entityId) {
 
 }
