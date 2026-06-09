@@ -3,6 +3,7 @@ package com.metasoft.veyra.platform.tracking.domain.services;
 import com.metasoft.veyra.platform.tracking.domain.model.aggregates.Device;
 import com.metasoft.veyra.platform.tracking.domain.model.queries.GetAllDevicesQuery;
 import com.metasoft.veyra.platform.tracking.domain.model.queries.GetDeviceByIdQuery;
+import com.metasoft.veyra.platform.tracking.domain.model.queries.GetDevicesByNursingHomeIdQuery;
 import com.metasoft.veyra.platform.tracking.domain.model.queries.GetDevicesByResidentQuery;
 import com.metasoft.veyra.platform.tracking.domain.model.queries.GetUnassignedDevicesQuery;
 
@@ -14,4 +15,5 @@ public interface DeviceQueryService {
     Optional<Device> handle(GetDeviceByIdQuery query);
     List<Device> handle(GetDevicesByResidentQuery query);
     List<Device> handle(GetUnassignedDevicesQuery query);
+    List<Device> handle(GetDevicesByNursingHomeIdQuery query);
 }
