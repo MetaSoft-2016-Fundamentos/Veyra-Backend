@@ -3,6 +3,7 @@ package com.metasoft.veyra.platform.tracking.application.internal.queryservices;
 import com.metasoft.veyra.platform.tracking.domain.model.aggregates.Device;
 import com.metasoft.veyra.platform.tracking.domain.model.queries.GetAllDevicesQuery;
 import com.metasoft.veyra.platform.tracking.domain.model.queries.GetDeviceByIdQuery;
+import com.metasoft.veyra.platform.tracking.domain.model.queries.GetDevicesByNursingHomeIdQuery;
 import com.metasoft.veyra.platform.tracking.domain.model.queries.GetDevicesByResidentQuery;
 import com.metasoft.veyra.platform.tracking.domain.model.queries.GetUnassignedDevicesQuery;
 import com.metasoft.veyra.platform.tracking.domain.model.valueobjects.AssignmentStatus;
@@ -40,5 +41,10 @@ public class DeviceQueryServiceImpl implements DeviceQueryService {
     @Override
     public List<Device> handle(GetUnassignedDevicesQuery query) {
         return deviceRepository.findAllByStatus(AssignmentStatus.UNASSIGNED);
+    }
+
+    @Override
+    public List<Device> handle(GetDevicesByNursingHomeIdQuery query) {
+        return deviceRepository.findAllByNursingHomeId(query.nursingHomeId());
     }
 }
