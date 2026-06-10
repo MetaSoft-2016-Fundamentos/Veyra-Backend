@@ -1,12 +1,12 @@
 package com.metasoft.veyra.platform.tracking.interfaces.rest.resources;
 
+import java.time.LocalDateTime;
+
 public record DeviceResource(Long id,
-                             String macAddress,
                              Long nursingHomeId,
                              String deviceType,
+                             String status,
                              Long residentId,
-                             String assignedBy,
-                             String assignedAt,
-                             String lastSync,
-                             String status) {
+                             LocalDateTime lastSync,
+                             String macAddress) {
 }
