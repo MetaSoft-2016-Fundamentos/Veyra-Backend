@@ -1,7 +1,7 @@
 package com.metasoft.veyra.platform.health.domain.model.commands;
 
 public record ValidateVitalSignCommand( String measurementId,
-                                        String deviceId,
+                                        Long deviceId,
                                         Integer heartRate,
                                         Integer systolic,
                                         Integer diastolic,

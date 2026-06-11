@@ -13,7 +13,7 @@ private final TrackingContextFacade trackingContextFacade;
     public ExternalTrackingService(TrackingContextFacade trackingContextFacade) {
         this.trackingContextFacade = trackingContextFacade;
     }
-    public Optional<ResidentId> fetchDeviceIdByResidentId(String deviceId) {
+    public Optional<ResidentId> fetchDeviceIdByResidentId(Long deviceId) {
         var residentId = trackingContextFacade.fetchResidentIdByDeviceId(deviceId);
         if (residentId == null || residentId == 0L) {
             return Optional.empty();
