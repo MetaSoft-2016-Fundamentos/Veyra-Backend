@@ -1,6 +1,7 @@
 package com.metasoft.veyra.platform.tracking.interfaces.rest;
 
-import com.metasoft.veyra.platform.tracking.domain.model.queries.GetDevicesByResidentQuery;
+import com.metasoft.veyra.platform.tracking.domain.model.queries.GetDevicesByResidentIdQuery;
+import com.metasoft.veyra.platform.tracking.domain.model.valueobjects.ResidentId;
 import com.metasoft.veyra.platform.tracking.domain.services.DeviceQueryService;
 import com.metasoft.veyra.platform.tracking.interfaces.rest.resources.DeviceResource;
 import com.metasoft.veyra.platform.tracking.interfaces.rest.transform.DeviceResourceFromEntityAssembler;
@@ -29,7 +30,7 @@ public class ResidentDeviceController {
     @GetMapping
     @Operation(summary = "Get devices by resident")
     public ResponseEntity<List<DeviceResource>> getDevicesByResident(@PathVariable Long residentId) {
-        var devices = deviceQueryService.handle(new GetDevicesByResidentQuery(residentId));
+        var devices = deviceQueryService.handle(new GetDevicesByResidentIdQuery(new ResidentId(residentId)));
         var resources = devices.stream()
                 .map(DeviceResourceFromEntityAssembler::toResourceFromEntity)
                 .toList();

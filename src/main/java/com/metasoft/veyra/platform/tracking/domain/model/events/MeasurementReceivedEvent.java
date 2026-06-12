@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 @Getter
 public class MeasurementReceivedEvent  extends ApplicationEvent {
    private final  String        measurementId;
-   private final  String        deviceId;
+   private final  Long        deviceId;
    private final  LocalDateTime measurementTimestamp;
    private final  Integer       heartRate;
    private final  Integer       systolic;
@@ -16,7 +16,7 @@ public class MeasurementReceivedEvent  extends ApplicationEvent {
    private final  Integer       oxygenSaturation;
    private final  Integer       respiratoryRate;
 
-    public MeasurementReceivedEvent(Object source,String measurementId1, String deviceId1, LocalDateTime timestamp1, Integer heartRate1, Integer systolic1, Integer diastolic1, Double temperature1, Integer oxygenSaturation1, Integer respiratoryRate1) {
+    public MeasurementReceivedEvent(Object source,String measurementId1, Long deviceId1, LocalDateTime timestamp1, Integer heartRate1, Integer systolic1, Integer diastolic1, Double temperature1, Integer oxygenSaturation1, Integer respiratoryRate1) {
         super(source);
         this.measurementId = measurementId1;
         this.deviceId = deviceId1;

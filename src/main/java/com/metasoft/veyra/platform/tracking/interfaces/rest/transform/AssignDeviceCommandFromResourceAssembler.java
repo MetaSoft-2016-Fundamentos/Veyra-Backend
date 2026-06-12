@@ -4,11 +4,10 @@ import com.metasoft.veyra.platform.tracking.domain.model.commands.AssignDeviceCo
 import com.metasoft.veyra.platform.tracking.interfaces.rest.resources.AssignDeviceResource;
 
 public class AssignDeviceCommandFromResourceAssembler {
-    public static AssignDeviceCommand toCommandFromResource(String deviceId, AssignDeviceResource resource) {
+    public static AssignDeviceCommand toCommandFromResource(Long deviceId, AssignDeviceResource resource) {
         return new AssignDeviceCommand(
                 deviceId,
-                resource.residentId(),
-                resource.assignedBy()
+                resource.residentId()
         );
     }
 }
