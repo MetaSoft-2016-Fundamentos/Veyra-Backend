@@ -13,4 +13,6 @@ public enum Roles {
     ROLE_ADMIN,
     /** The instructor role. */
     ROLE_FAMILIAR,
+    /** The doctor role. */
+    ROLE_DOCTOR,
 }
