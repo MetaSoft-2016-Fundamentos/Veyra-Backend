@@ -14,7 +14,6 @@ import com.metasoft.veyra.platform.nursing.interfaces.acl.NursingContextFacade;
 import org.springframework.stereotype.Service;
 
 @Service
-
 public class NursingContextFacadeImpl implements NursingContextFacade {
   private final NursingHomeQueryServices nursingHomeQueryServices;
   private final ResidentQueryServices residentQueryServices;
@@ -45,22 +44,24 @@ public class NursingContextFacadeImpl implements NursingContextFacade {
 
   @Override
   public Long fetchResidentById(Long residentId) {
-    var findResidentById= new GetResidentByIdQuery(residentId);
-    var resident= residentQueryServices.handle(findResidentById);
-    return resident.isEmpty()?Long.valueOf(0L):resident.get().getId();
+    var query = new GetResidentByIdQuery(residentId);
+    var resident = residentQueryServices.handle(query);
+    return resident.isEmpty() ? Long.valueOf(0L) : resident.get().getId();
   }
+
   @Override
   public Long fetchAdministratorByUserId(Long userId) {
-    var findAdministratorByUserId= new GetAdministratorByUserIdQuery(userId);
-    var administrator= administratorQueryService.handle(findAdministratorByUserId);
-    return administrator.isEmpty()?Long.valueOf(0L):administrator.get().getId();
-
+    var query = new GetAdministratorByUserIdQuery(userId);
+    var administrator = administratorQueryService.handle(query);
+    return administrator.isEmpty() ? Long.valueOf(0L) : administrator.get().getId();
   }
 
   @Override
   public Long fetchStaffByUserId(Long userId) {
-    var getStaffByUserIdQuery = new GetStaffByUserIdQuery(userId);
-    var staff = staffQueryServices.handle(getStaffByUserIdQuery);
-    return staff.isEmpty() ? 0L : staff.get().getId();
+    var findStaffByUserIdQuery = new GetStaffByUserIdQuery(userId);
+    var staff = staffQueryServices.handle(findStaffByUserIdQuery);
+    // If staff is not found or nursingHomeId is 0L, return null
+    return staff.isEmpty() || staff.get().getNursingHomeId().nursingHomeId() == 0L ? null : staff.get().getNursingHomeId().nursingHomeId();
   }
+
 }

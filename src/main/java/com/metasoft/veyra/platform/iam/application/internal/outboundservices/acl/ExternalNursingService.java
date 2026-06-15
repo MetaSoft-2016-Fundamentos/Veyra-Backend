@@ -5,6 +5,7 @@ import com.metasoft.veyra.platform.nursing.interfaces.acl.NursingContextFacade;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+
 @Service("ExternalNursingServiceIam")
 public class ExternalNursingService {
   private final NursingContextFacade nursingContextFacade;
@@ -18,6 +19,7 @@ public class ExternalNursingService {
 
   public Optional<EntityId> fetchStaffEntityId(Long userId){
     var query = nursingContextFacade.fetchStaffByUserId(userId);
-    return query==0L?Optional.empty():Optional.of(new EntityId(query));
+    // Correctly handle null return from nursingContextFacade.fetchStaffByUserId
+    return query == null || query == 0L ? Optional.empty() : Optional.of(new EntityId(query));
   }
 }

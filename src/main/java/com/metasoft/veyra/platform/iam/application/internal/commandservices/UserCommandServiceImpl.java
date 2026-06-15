@@ -6,7 +6,6 @@ import com.metasoft.veyra.platform.iam.application.internal.outboundservices.tok
 import com.metasoft.veyra.platform.iam.domain.model.aggregates.User;
 import com.metasoft.veyra.platform.iam.domain.model.commands.SignInCommand;
 import com.metasoft.veyra.platform.iam.domain.model.commands.SignUpCommand;
-import com.metasoft.veyra.platform.iam.domain.model.entities.Role;
 import com.metasoft.veyra.platform.iam.domain.model.valueobjects.EntityId;
 import com.metasoft.veyra.platform.iam.domain.model.valueobjects.Roles;
 import com.metasoft.veyra.platform.iam.domain.services.UserCommandService;
