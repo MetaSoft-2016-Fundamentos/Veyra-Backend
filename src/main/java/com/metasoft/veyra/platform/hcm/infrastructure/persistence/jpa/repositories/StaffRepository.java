@@ -3,6 +3,7 @@ package com.metasoft.veyra.platform.hcm.infrastructure.persistence.jpa.repositor
 import com.metasoft.veyra.platform.hcm.domain.model.aggregates.Staff;
 import com.metasoft.veyra.platform.hcm.domain.model.valueobjects.NursingHomeId;
 import com.metasoft.veyra.platform.hcm.domain.model.valueobjects.PersonProfileId;
+import com.metasoft.veyra.platform.hcm.domain.model.valueobjects.UserId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,4 +15,6 @@ public interface StaffRepository extends JpaRepository<Staff, Long> {
     Optional<Staff> findByPersonProfileIdAndNursingHomeId(PersonProfileId personProfileId, NursingHomeId nursingHomeId);
 
     List<Staff> findByNursingHomeId(NursingHomeId nursingHomeId);
+
+    Optional<Staff> findByUserId(UserId userId);
 }
