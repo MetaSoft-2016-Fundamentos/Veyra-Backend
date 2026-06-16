@@ -1,4 +1,4 @@
-package com.metasoft.veyra.platform.nursing.domain.model.queries;
+package com.metasoft.veyra.platform.hcm.domain.model.queries;
 
 public record GetStaffByUserIdQuery(Long userId) {
     public GetStaffByUserIdQuery {

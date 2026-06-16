@@ -8,8 +8,9 @@ import java.util.Optional;
 
 public interface HcmContextFacade {
     List<Staff> getAllActiveStaffWithNurseRoleByNursingHomeId(NursingHomeId nursingHomeId);
-    Optional<Staff> getStaffById(Long id);
+    Long getStaffById(Long id);
     List<Staff> getAllStaffByNursingHomeId(NursingHomeId nursingHomeId);
     List<Staff> getAllActiveStaffByNursingHomeId(NursingHomeId nursingHomeId);
     Optional<Staff> getStaffMemberWithNurseRoleAndActiveContract(Long staffId, NursingHomeId nursingHomeId);
+    Long getStaffByUserId(Long userId);
 }
