@@ -1,5 +1,6 @@
 package com.metasoft.veyra.platform.iam.application.internal.commandservices;
 
+import com.metasoft.veyra.platform.iam.application.internal.outboundservices.acl.ExternalHcmService;
 import com.metasoft.veyra.platform.iam.application.internal.outboundservices.acl.ExternalNursingService;
 import com.metasoft.veyra.platform.iam.application.internal.outboundservices.hashing.HashingService;
 import com.metasoft.veyra.platform.iam.application.internal.outboundservices.tokens.TokenService;
@@ -30,6 +31,7 @@ public class UserCommandServiceImpl implements UserCommandService {
   private final HashingService hashingService;
   private final TokenService tokenService;
   private final ExternalNursingService externalNursingService;
+  private final ExternalHcmService externalHcmService;
   private final RoleRepository roleRepository;
 
   /**
@@ -40,11 +42,12 @@ public class UserCommandServiceImpl implements UserCommandService {
    * @param externalNursingService the external nursing service
    * @param roleRepository the role repository
    */
-  public UserCommandServiceImpl(UserRepository userRepository, HashingService hashingService, TokenService tokenService, ExternalNursingService externalNursingService, RoleRepository roleRepository) {
+  public UserCommandServiceImpl(UserRepository userRepository, HashingService hashingService, TokenService tokenService, ExternalNursingService externalNursingService,ExternalHcmService externalHcmService, RoleRepository roleRepository) {
     this.userRepository = userRepository;
     this.hashingService = hashingService;
     this.tokenService = tokenService;
     this.externalNursingService = externalNursingService;
+    this.externalHcmService = externalHcmService;
     this.roleRepository = roleRepository;
   }
 
@@ -72,7 +75,7 @@ public class UserCommandServiceImpl implements UserCommandService {
         .map(EntityId::entityId)
         .orElse(null);
     } else if (user.get().getRoles().stream().anyMatch(role -> role.getName().equals(Roles.ROLE_DOCTOR))) {
-      entityId = externalNursingService.fetchStaffEntityId(user.get().getId())
+      entityId = externalHcmService.fetchStaffEntityId(user.get().getId())
         .map(EntityId::entityId)
         .orElse(null);
     }
