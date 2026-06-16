@@ -8,6 +8,5 @@ public interface NursingContextFacade {
     boolean existsResidentByPersonProfile(Long personProfile);
     Long fetchResidentById(Long residentId);
     Long fetchAdministratorByUserId(Long userId);
-    Long fetchStaffByUserId(Long userId);
     Optional<LocalDate> fetchNursingHomeCreatedAtById(Long id);
 }
