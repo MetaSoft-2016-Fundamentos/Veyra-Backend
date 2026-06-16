@@ -54,6 +54,8 @@ public class Metric extends AuditableAbstractAggregateRoot<Metric> {
      * aggregation operation when the caller intends to tally occurrences.
      */
     public void incrementValue() {
+        if (this.value == Long.MAX_VALUE) {
+            throw new ArithmeticException("Metric value has reached its maximum limit");
+        }
         this.value++;
-    }
-}
+    }}
