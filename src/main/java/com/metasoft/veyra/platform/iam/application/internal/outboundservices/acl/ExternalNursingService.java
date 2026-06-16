@@ -17,9 +17,5 @@ public class ExternalNursingService {
     return query==0L?Optional.empty():Optional.of(new EntityId(query));
   }
 
-  public Optional<EntityId> fetchStaffEntityId(Long userId){
-    var query = nursingContextFacade.fetchStaffByUserId(userId);
-    // Correctly handle null return from nursingContextFacade.fetchStaffByUserId
-    return query == null || query == 0L ? Optional.empty() : Optional.of(new EntityId(query));
-  }
+
 }
