@@ -3,7 +3,7 @@ package com.metasoft.veyra.platform.hcm.domain.services;
 import com.metasoft.veyra.platform.hcm.domain.model.aggregates.Staff;
 import com.metasoft.veyra.platform.hcm.domain.model.entities.Contract;
 import com.metasoft.veyra.platform.hcm.domain.model.queries.*;
-import com.metasoft.veyra.platform.nursing.domain.model.queries.GetStaffByUserIdQuery;
+import com.metasoft.veyra.platform.hcm.domain.model.queries.GetStaffByUserIdQuery;
 
 import java.util.List;
 import java.util.Optional;

@@ -6,11 +6,12 @@ import com.metasoft.veyra.platform.hcm.domain.model.queries.*;
 import com.metasoft.veyra.platform.hcm.domain.model.valueobjects.UserId;
 import com.metasoft.veyra.platform.hcm.domain.services.StaffQueryServices;
 import com.metasoft.veyra.platform.hcm.infrastructure.persistence.jpa.repositories.StaffRepository;
-import com.metasoft.veyra.platform.nursing.domain.model.queries.GetStaffByUserIdQuery;
+import com.metasoft.veyra.platform.hcm.domain.model.queries.GetStaffByUserIdQuery;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+
 @Service
 public class StaffQueryServiceImpl implements StaffQueryServices {
     private final StaffRepository staffRepository;
@@ -21,7 +22,7 @@ public class StaffQueryServiceImpl implements StaffQueryServices {
 
     @Override
     public Optional<Staff> handle(GetStaffByIdQuery query) {
-      return staffRepository.findById(query.id());
+        return staffRepository.findById(query.id());
     }
 
     @Override
@@ -66,7 +67,7 @@ public class StaffQueryServiceImpl implements StaffQueryServices {
 
     @Override
     public Optional<Contract> handle(GetLastAddedContractByStaffMemberIdQuery query) {
-        return staffRepository.findById(query.staffId()).map(staff->staff.getContractHistory().getLastAddedContract());
+        return staffRepository.findById(query.staffId()).map(staff -> staff.getContractHistory().getLastAddedContract());
     }
 
     @Override
@@ -75,8 +76,8 @@ public class StaffQueryServiceImpl implements StaffQueryServices {
                 .stream()
                 .filter(staff -> "ACTIVE".equals(staff.getStaffStatus().name()))
                 .filter(staff -> staff.getContractHistory().getAllContracts().stream()
-                        .anyMatch(contract -> contract.getStaffRole() != null && 
-                                             "NURSE".equals(contract.getStaffRole().name())))
+                        .anyMatch(contract -> contract.getStaffRole() != null &&
+                                "NURSE".equals(contract.getStaffRole().name())))
                 .toList();
     }
 
