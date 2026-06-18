@@ -1,14 +1,8 @@
 package com.metasoft.veyra.platform.iam.interfaces.rest;
 
 import com.metasoft.veyra.platform.iam.domain.services.UserCommandService;
-import com.metasoft.veyra.platform.iam.interfaces.rest.resources.AuthenticatedUserResource;
-import com.metasoft.veyra.platform.iam.interfaces.rest.resources.SignInResource;
-import com.metasoft.veyra.platform.iam.interfaces.rest.resources.SignUpResource;
-import com.metasoft.veyra.platform.iam.interfaces.rest.resources.UserResource;
-import com.metasoft.veyra.platform.iam.interfaces.rest.transform.AuthenticatedUserResourceFromEntityAssembler;
-import com.metasoft.veyra.platform.iam.interfaces.rest.transform.SignInCommandFromResourceAssembler;
-import com.metasoft.veyra.platform.iam.interfaces.rest.transform.SignUpCommandFromResourceAssembler;
-import com.metasoft.veyra.platform.iam.interfaces.rest.transform.UserResourceFromEntityAssembler;
+import com.metasoft.veyra.platform.iam.interfaces.rest.resources.*;
+import com.metasoft.veyra.platform.iam.interfaces.rest.transform.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -81,5 +75,18 @@ public class AuthenticationController {
         var userResource = UserResourceFromEntityAssembler.toResourceFromEntity(user.get());
         return new ResponseEntity<>(userResource, HttpStatus.CREATED);
 
+    }
+    @PostMapping("/set-password")
+    @Operation(summary = "Set password", description = "Set the password for the relative account using the activation token.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Password set successfully."),
+            @ApiResponse(responseCode = "404", description = "Invalid or expired activation token.")})
+    public ResponseEntity<?> setPassword(@RequestBody SetPasswordResource setPasswordResource) {
+        var setPasswordCommand = SetPasswordCommandFromResourceAssembler.toCommandFromResource(setPasswordResource);
+        var result = userCommandService.handle(setPasswordCommand);
+        if (result.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok().build();
     }
 }
