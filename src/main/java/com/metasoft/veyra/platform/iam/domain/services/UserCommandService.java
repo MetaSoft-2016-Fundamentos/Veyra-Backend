@@ -1,6 +1,8 @@
 package com.metasoft.veyra.platform.iam.domain.services;
 
 import com.metasoft.veyra.platform.iam.domain.model.aggregates.User;
+import com.metasoft.veyra.platform.iam.domain.model.commands.CreateRelativeAccountCommand;
+import com.metasoft.veyra.platform.iam.domain.model.commands.SetPasswordCommand;
 import com.metasoft.veyra.platform.iam.domain.model.commands.SignInCommand;
 import com.metasoft.veyra.platform.iam.domain.model.commands.SignUpCommand;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -27,6 +29,8 @@ public interface UserCommandService {
      * @return an {@link Optional} of {@link User} entity
      */
     Optional<User> handle(SignUpCommand command);
+    Optional<User> handle(SetPasswordCommand command);
+    String handle(CreateRelativeAccountCommand command);
 
 
 }

@@ -3,15 +3,20 @@ package com.metasoft.veyra.platform.iam.application.internal.commandservices;
 import com.metasoft.veyra.platform.iam.application.internal.outboundservices.hashing.HashingService;
 import com.metasoft.veyra.platform.iam.application.internal.outboundservices.tokens.TokenService;
 import com.metasoft.veyra.platform.iam.domain.model.aggregates.User;
+import com.metasoft.veyra.platform.iam.domain.model.commands.CreateRelativeAccountCommand;
+import com.metasoft.veyra.platform.iam.domain.model.commands.SetPasswordCommand;
 import com.metasoft.veyra.platform.iam.domain.model.commands.SignInCommand;
 import com.metasoft.veyra.platform.iam.domain.model.commands.SignUpCommand;
+import com.metasoft.veyra.platform.iam.domain.model.entities.Role;
 import com.metasoft.veyra.platform.iam.domain.services.UserCommandService;
 import com.metasoft.veyra.platform.iam.infrastructure.persistence.jpa.repositories.RoleRepository;
 import com.metasoft.veyra.platform.iam.infrastructure.persistence.jpa.repositories.UserRepository;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * User command service implementation
@@ -79,5 +84,31 @@ public class UserCommandServiceImpl implements UserCommandService {
         var user = new User(command.username(), hashingService.encode(command.password()), roles);
         userRepository.save(user);
         return userRepository.findByUsername(command.username());
+    }
+    @Override
+    public Optional<User> handle(SetPasswordCommand command) {
+        var user = userRepository.findByActivationToken(command.activationToken())
+                .orElseThrow(() -> new RuntimeException("Invalid or expired activation token"));
+
+        user.setPassword(hashingService.encode(command.newPassword()));
+        user.setActivationToken(null);
+        userRepository.save(user);
+
+        return Optional.of(user);
+    }
+    @Override
+    public String handle(CreateRelativeAccountCommand command) {
+        if (userRepository.existsByUsername(command.email()))
+            throw new RuntimeException("Username already exists");
+
+        var roles = List.of(Role.toRoleFromName("ROLE_RELATIVE"));
+        var activationToken = UUID.randomUUID().toString();
+        var tempPassword = hashingService.encode(UUID.randomUUID().toString());
+
+        var user = new User(command.email(), tempPassword, roles);
+        user.setActivationToken(activationToken);
+        userRepository.save(user);
+
+        return activationToken;
     }
 }
