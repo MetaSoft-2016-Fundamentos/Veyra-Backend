@@ -42,4 +42,11 @@ public class ExternalIamService {
     public boolean userExists(String username) {
         return fetchUserByUsername(username) != null;
     }
+    /**
+     * Creates a relative account in IAM with a temporary password.
+     * @return activation token to be sent to the relative's email
+     */
+    public String createRelativeAccount(String email) {
+        return iamContextFacade.createRelativeAccount(email);
+    }
 }
