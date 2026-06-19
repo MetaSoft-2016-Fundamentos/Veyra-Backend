@@ -11,6 +11,8 @@ public enum Roles {
     ROLE_USER,
     /** The admin role. */
     ROLE_ADMIN,
-    /** The instructor role. */
+    /** The doctor role. */
+    ROLE_DOCTOR,
+    /** The relative role. */
     ROLE_RELATIVE,
 }

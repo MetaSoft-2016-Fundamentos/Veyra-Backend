@@ -16,6 +16,7 @@ public record GetResidentAdmissionsByNursingHomeIdAndDateRangeQuery(
         if (startDate == null || endDate == null) {
             throw new IllegalArgumentException("startDate and endDate must not be null");
         }
+
         if (startDate.isAfter(endDate)) {
             throw new IllegalArgumentException("startDate must be before or equal to endDate");
         }
@@ -23,4 +24,4 @@ public record GetResidentAdmissionsByNursingHomeIdAndDateRangeQuery(
             throw new IllegalArgumentException("endDate must not be in the future");
         }
     }
-    }
+}

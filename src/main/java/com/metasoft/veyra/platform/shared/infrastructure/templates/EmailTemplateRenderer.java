@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
-import com.metasoft.veyra.platform.shared.domain.model.valueobjetcs.EmailTemplate;
+import com.metasoft.veyra.platform.shared.domain.model.valueobjects.EmailTemplate;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

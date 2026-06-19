@@ -21,6 +21,9 @@ public class Staff extends AuditableAbstractAggregateRoot<Staff> {
      contractHistory=new ContractHistory();
  }
     @Embedded
+    private UserId userId;
+
+    @Embedded
     private final ContractHistory contractHistory;
 
     @Embedded

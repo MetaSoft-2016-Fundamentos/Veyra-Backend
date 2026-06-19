@@ -9,7 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
 
-import com.metasoft.veyra.platform.shared.domain.model.valueobjetcs.EmailTemplate;
+import com.metasoft.veyra.platform.shared.domain.model.valueobjects.EmailTemplate;
 
 public record SendRenderedTemplateEmailResource(
         @Schema(example = "[\"user@example.com\"]")

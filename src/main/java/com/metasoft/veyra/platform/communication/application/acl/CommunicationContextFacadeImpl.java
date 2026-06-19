@@ -19,7 +19,7 @@ import com.metasoft.veyra.platform.communication.domain.services.PushNotificatio
 import com.metasoft.veyra.platform.communication.domain.services.UserNotificationCommandService;
 import com.metasoft.veyra.platform.communication.domain.services.UserPushTokenCommandService;
 import com.metasoft.veyra.platform.communication.interfaces.acl.CommunicationContextFacade;
-import com.metasoft.veyra.platform.shared.domain.model.valueobjetcs.EmailTemplate;
+import com.metasoft.veyra.platform.shared.domain.model.valueobjects.EmailTemplate;
 
 import org.springframework.stereotype.Service;
 

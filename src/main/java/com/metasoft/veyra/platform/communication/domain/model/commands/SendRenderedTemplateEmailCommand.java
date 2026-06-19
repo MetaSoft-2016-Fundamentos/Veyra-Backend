@@ -1,7 +1,7 @@
 package com.metasoft.veyra.platform.communication.domain.model.commands;
 
 import com.metasoft.veyra.platform.communication.domain.model.valueobjects.EmailRecipients;
-import com.metasoft.veyra.platform.shared.domain.model.valueobjetcs.EmailTemplate;
+import com.metasoft.veyra.platform.shared.domain.model.valueobjects.EmailTemplate;
 
 import java.util.Map;
 
