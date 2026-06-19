@@ -1,6 +1,6 @@
 package com.metasoft.veyra.platform.nursing.application.internal.outboundservices.acl;
 import com.metasoft.veyra.platform.communication.interfaces.acl.CommunicationContextFacade;
-import com.metasoft.veyra.platform.shared.domain.model.valueobjetcs.EmailTemplate;
+import com.metasoft.veyra.platform.shared.domain.model.valueobjects.EmailTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.util.List;
