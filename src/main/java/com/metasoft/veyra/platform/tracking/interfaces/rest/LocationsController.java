@@ -6,6 +6,8 @@ import com.metasoft.veyra.platform.tracking.interfaces.rest.resources.RecordLoca
 import com.metasoft.veyra.platform.tracking.interfaces.rest.transform.LocationResourceFromEntityAssembler;
 import com.metasoft.veyra.platform.tracking.interfaces.rest.transform.RecordLocationCommandFromResourceAssembler;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -27,9 +29,15 @@ public class LocationsController {
 
     @PostMapping
     @Operation(summary = "Record a GPS location for a device")
+    @ApiResponses(value ={ @ApiResponse(responseCode = "201" ,description = "record location"),@ApiResponse(responseCode = "400" , description = "bad request")})
     public ResponseEntity<LocationResource> recordLocation(@Valid @RequestBody RecordLocationResource resource) {
         var command = RecordLocationCommandFromResourceAssembler.toCommandFromResource(resource);
         var location = locationCommandService.handle(command);
-        return new ResponseEntity<>(LocationResourceFromEntityAssembler.toResourceFromEntity(location), HttpStatus.CREATED);
+        if (location.isEmpty()){
+            return ResponseEntity.badRequest().build();
+        }
+        var  locationEntity=location.get();
+        var locationResource= LocationResourceFromEntityAssembler.toResourceFromEntity(locationEntity);
+        return new ResponseEntity<>(locationResource,HttpStatus.CREATED);
     }
 }
