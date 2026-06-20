@@ -4,6 +4,7 @@ import com.metasoft.veyra.platform.nursing.domain.model.aggregates.Relative;
 import com.metasoft.veyra.platform.nursing.domain.model.commands.AssignUserToRelativeCommand;
 import com.metasoft.veyra.platform.nursing.domain.model.commands.CreateRelativeCommand;
 import com.metasoft.veyra.platform.nursing.domain.model.commands.UpdateRelativeCommand;
+import com.metasoft.veyra.platform.nursing.domain.model.events.RegisteredRelativeEvent; // Import added
 import com.metasoft.veyra.platform.nursing.domain.services.RelativeCommandService;
 import com.metasoft.veyra.platform.nursing.infrastructure.persistence.jpa.repositories.NursingHomeRepository;
 import com.metasoft.veyra.platform.nursing.infrastructure.persistence.jpa.repositories.RelativeRepository;
@@ -34,6 +35,8 @@ public class RelativeCommandServiceImpl implements RelativeCommandService {
         var relative = new Relative(command.email(),command.firstname(),command.lastname(),residentId,nursingHomeId);
         try {
             relativeRepository.save(relative);
+            // Add the domain event AFTER saving the aggregate
+            relative.addDomainEvent(new RegisteredRelativeEvent(relative, relative.getEmailAddress().emailAddress(), relative.getPersonName().firstName(), relative.getPersonName().lastName()));
             return relative.getId();
         }catch (Exception e){
             throw new RuntimeException("Error creating relative: " + e.getMessage(), e);
