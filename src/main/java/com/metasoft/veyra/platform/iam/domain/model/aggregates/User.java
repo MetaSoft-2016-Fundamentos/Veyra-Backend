@@ -87,5 +87,7 @@ public class User extends AuditableAbstractAggregateRoot<User> {
         this.roles.addAll(validatedRoleSet);
         return this;
     }
+    @Column(name = "activation_token", unique = true)
+    private String activationToken;
 
 }

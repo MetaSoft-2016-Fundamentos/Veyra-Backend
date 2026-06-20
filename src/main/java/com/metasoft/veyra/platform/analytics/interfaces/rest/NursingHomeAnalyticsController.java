@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
-@RequestMapping(value = "/api/v1/nursing-homes/{nursingHomeId}/analytics", produces = APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v1/nursing-homes/{nursingHomeId}", produces = APPLICATION_JSON_VALUE)
 @Tag(name = "Nursing Homes")
 public class NursingHomeAnalyticsController {
 
@@ -34,7 +34,7 @@ public class NursingHomeAnalyticsController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Analytics returned successfully"),
-            @ApiResponse(responseCode = "404", description = "No metrics found")
+            @ApiResponse(responseCode = "400", description = "Invalid year parameter")
     })
     public ResponseEntity<MetricResource> getResidentAdmissionsAnalytics(
             @PathVariable Long nursingHomeId,
@@ -43,14 +43,10 @@ public class NursingHomeAnalyticsController {
         var nursingHomeIdVO = new NursingHomeId(nursingHomeId);
         var query = new GetResidentAdmissionsByNursingHomeIdAndYearQuery(nursingHomeIdVO, year);
         var metrics = metricQueryService.handle(query);
-
-        if (metrics.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
         var resource = MetricResourceFromEntityAssembler.toResourceFromEntityList(metrics);
         return ResponseEntity.ok(resource);
     }
+
     @GetMapping("/staff-hires")
     @Operation(
             summary = "Get staff hires analytics",
@@ -58,7 +54,7 @@ public class NursingHomeAnalyticsController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Analytics returned successfully"),
-            @ApiResponse(responseCode = "404", description = "No metrics found")
+            @ApiResponse(responseCode = "400", description = "Invalid year parameter")
     })
     public ResponseEntity<MetricResource> getStaffHiresAnalytics(
             @PathVariable Long nursingHomeId,
@@ -67,11 +63,6 @@ public class NursingHomeAnalyticsController {
         var nursingHomeIdVO = new NursingHomeId(nursingHomeId);
         var query = new GetStaffHiresByNursingHomeIdAndYearQuery(nursingHomeIdVO, year);
         var metrics = metricQueryService.handle(query);
-
-        if (metrics.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
         var resource = MetricResourceFromEntityAssembler.toResourceFromEntityList(metrics);
         return ResponseEntity.ok(resource);
     }
@@ -83,7 +74,7 @@ public class NursingHomeAnalyticsController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Analytics returned successfully"),
-            @ApiResponse(responseCode = "404", description = "No metrics found")
+            @ApiResponse(responseCode = "400", description = "Invalid year parameter")
     })
     public ResponseEntity<MetricResource> getStaffTerminationsAnalytics(
             @PathVariable Long nursingHomeId,
@@ -92,11 +83,6 @@ public class NursingHomeAnalyticsController {
         var nursingHomeIdVO = new NursingHomeId(nursingHomeId);
         var query = new GetStaffTerminationsByNursingHomeIdAndYearQuery(nursingHomeIdVO, year);
         var metrics = metricQueryService.handle(query);
-
-        if (metrics.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
         var resource = MetricResourceFromEntityAssembler.toResourceFromEntityList(metrics);
         return ResponseEntity.ok(resource);
     }

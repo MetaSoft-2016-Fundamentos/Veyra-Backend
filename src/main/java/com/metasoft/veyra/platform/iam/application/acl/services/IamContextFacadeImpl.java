@@ -1,11 +1,14 @@
 package com.metasoft.veyra.platform.iam.application.acl.services;
 
+import com.metasoft.veyra.platform.iam.application.internal.outboundservices.hashing.HashingService;
+import com.metasoft.veyra.platform.iam.domain.model.commands.CreateRelativeAccountCommand;
 import com.metasoft.veyra.platform.iam.domain.model.commands.SignUpCommand;
 import com.metasoft.veyra.platform.iam.domain.model.entities.Role;
 import com.metasoft.veyra.platform.iam.domain.model.queries.GetUserByIdQuery;
 import com.metasoft.veyra.platform.iam.domain.model.queries.GetUserByUsernameQuery;
 import com.metasoft.veyra.platform.iam.domain.services.UserCommandService;
 import com.metasoft.veyra.platform.iam.domain.services.UserQueryService;
+import com.metasoft.veyra.platform.iam.infrastructure.persistence.jpa.repositories.UserRepository;
 import com.metasoft.veyra.platform.iam.interfaces.acl.IamContextFacade;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
@@ -26,13 +29,12 @@ import java.util.List;
 public class IamContextFacadeImpl implements IamContextFacade {
     private final UserCommandService userCommandService;
     private final UserQueryService userQueryService;
-
     /**
      * Constructor for IamContextFacadeImpl.
      * @param userCommandService the user command service
      * @param userQueryService the user query service
      */
-    public IamContextFacadeImpl(UserCommandService userCommandService, UserQueryService userQueryService) {
+    public IamContextFacadeImpl(UserCommandService userCommandService, UserQueryService userQueryService, UserRepository userRepository, HashingService hashingService) {
         this.userCommandService = userCommandService;
         this.userQueryService = userQueryService;
     }
@@ -102,6 +104,12 @@ public class IamContextFacadeImpl implements IamContextFacade {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    @Override
+    public String createRelativeAccount(String email) {
+        return userCommandService.handle(new CreateRelativeAccountCommand(email));
+
     }
 
 }

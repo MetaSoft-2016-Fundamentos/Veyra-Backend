@@ -30,4 +30,5 @@ public interface ProfilesContextFacade {
                                String photoFileName,
                                String ruc );
     Long fetchBusinessProfileIdByRuc(String ruc);
+    String fetchDniByPersonProfileId(Long personProfileId);
 }

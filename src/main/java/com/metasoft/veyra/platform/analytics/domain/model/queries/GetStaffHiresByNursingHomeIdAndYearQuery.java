@@ -1,14 +1,24 @@
 package com.metasoft.veyra.platform.analytics.domain.model.queries;
 
 import com.metasoft.veyra.platform.analytics.domain.model.valueobjects.NursingHomeId;
-public record GetStaffHiresByNursingHomeIdAndYearQuery(NursingHomeId nursingHomeId,Integer year) {
-    public  GetStaffHiresByNursingHomeIdAndYearQuery{
-        if (year==null){
+
+import java.time.Year;
+
+public record GetStaffHiresByNursingHomeIdAndYearQuery(
+        NursingHomeId nursingHomeId,
+        Integer year) {
+
+    private static final int MIN_YEAR = 1900;
+
+    public GetStaffHiresByNursingHomeIdAndYearQuery {
+        int currentYear = Year.now().getValue();
+
+        if (year == null) {
             throw new IllegalArgumentException("year cannot be null");
         }
-        if ( year < 1900 || year > 2025) {
-            throw new IllegalArgumentException("year must be between 1900 and 2025");
+        if (year < MIN_YEAR || year > currentYear) {
+            throw new IllegalArgumentException(
+                    "year must be between %d and %d".formatted(MIN_YEAR, currentYear));
         }
     }
-
 }

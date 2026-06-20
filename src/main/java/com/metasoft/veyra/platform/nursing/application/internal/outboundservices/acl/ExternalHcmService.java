@@ -27,11 +27,15 @@ public class ExternalHcmService {
         return hcmContextFacade.getAllActiveStaffByNursingHomeId(nursingHomeId);
     }
 
-    public Optional<Staff> getStaffById(Long id){
+    public Long getStaffById(Long id){
         return hcmContextFacade.getStaffById(id);
     }
 
     public Optional<Staff> getStaffMemberWithNurseRoleAndActiveContract(Long staffId, Long nursingHomeId) {
         return hcmContextFacade.getStaffMemberWithNurseRoleAndActiveContract(staffId, new NursingHomeId(nursingHomeId));
+    }
+
+    public Long getStaffByUserId(Long userId){
+        return hcmContextFacade.getStaffByUserId(userId);
     }
 }

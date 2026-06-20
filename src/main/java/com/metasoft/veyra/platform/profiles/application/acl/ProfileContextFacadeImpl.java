@@ -6,6 +6,7 @@ import com.metasoft.veyra.platform.profiles.domain.model.commands.DeletePersonPr
 import com.metasoft.veyra.platform.profiles.domain.model.commands.UpdatePersonProfileCommand;
 import com.metasoft.veyra.platform.profiles.domain.model.queries.GetBusinessProfileByRucQuery;
 import com.metasoft.veyra.platform.profiles.domain.model.queries.GetPersonProfileByDniQuery;
+import com.metasoft.veyra.platform.profiles.domain.model.queries.GetPersonProfileByIdQuery;
 import com.metasoft.veyra.platform.profiles.domain.model.valueobjects.Dni;
 import com.metasoft.veyra.platform.profiles.domain.model.valueobjects.Ruc;
 import com.metasoft.veyra.platform.profiles.domain.services.BusinessProfileCommandService;
@@ -22,7 +23,7 @@ public class ProfileContextFacadeImpl implements ProfilesContextFacade {
     private final PersonProfileCommandService personProfileCommandService;
     private final PersonProfileQueryService personProfileQueryService;
     private final BusinessProfileCommandService businessProfileCommandService;
-private final BusinessProfileQueryService businessProfileQueryService;
+    private final BusinessProfileQueryService businessProfileQueryService;
 
     public ProfileContextFacadeImpl(PersonProfileCommandService personProfileCommandService, PersonProfileQueryService personProfileQueryService, BusinessProfileCommandService businessProfileCommandService, BusinessProfileQueryService businessProfileQueryService) {
         this.personProfileCommandService = personProfileCommandService;
@@ -33,51 +34,60 @@ private final BusinessProfileQueryService businessProfileQueryService;
 
     @Override
     public Long createPersonProfile(String dni, String firstName, String lastName,
-                                    LocalDate birthDate, Integer Age, String emailAddress,String street, String number,
-                                    String city, String postalCode,String country,byte[] photoData,
+                                    LocalDate birthDate, Integer Age, String emailAddress, String street, String number,
+                                    String city, String postalCode, String country, byte[] photoData,
                                     String photoFileName, String phoneNumber) {
-        var createPersonProfileCommand=
+        var createPersonProfileCommand =
                 new
                         CreatePersonProfileCommand
-                        (dni,firstName,lastName,birthDate,Age,emailAddress,street,number,city,postalCode,country,photoData,photoFileName,phoneNumber);
-        var personProfile= personProfileCommandService.handle(createPersonProfileCommand);
-        return personProfile.isEmpty()?Long.valueOf(0L):personProfile.get().getId();
+                        (dni, firstName, lastName, birthDate, Age, emailAddress, street, number, city, postalCode, country, photoData, photoFileName, phoneNumber);
+        var personProfile = personProfileCommandService.handle(createPersonProfileCommand);
+        return personProfile.isEmpty() ? Long.valueOf(0L) : personProfile.get().getId();
     }
+
     @Override
     public Long createBusinessProfile(String businessName, String emailAddress, String phoneNumber, String street, String number, String city, String postalCode, String country, byte[] photoData,
                                       String photoFileName, String ruc) {
-        var createBusinessProfileCommand= new CreateBusinessProfileCommand(businessName,emailAddress,phoneNumber,street,number,city,postalCode,country,photoData,photoFileName,ruc);
-        var businessProfile= businessProfileCommandService.handle(createBusinessProfileCommand);
-        return businessProfile.isEmpty()?Long.valueOf(0L):businessProfile.get().getId();
+        var createBusinessProfileCommand = new CreateBusinessProfileCommand(businessName, emailAddress, phoneNumber, street, number, city, postalCode, country, photoData, photoFileName, ruc);
+        var businessProfile = businessProfileCommandService.handle(createBusinessProfileCommand);
+        return businessProfile.isEmpty() ? Long.valueOf(0L) : businessProfile.get().getId();
     }
 
     @Override
     public Long fetchBusinessProfileIdByRuc(String ruc) {
-        var getBusinessProfileQuery= new GetBusinessProfileByRucQuery(new Ruc(ruc));
-          var businessProfile= businessProfileQueryService.handle(getBusinessProfileQuery);
-          return businessProfile.isEmpty()?Long.valueOf(0L):businessProfile.get().getId();
+        var getBusinessProfileQuery = new GetBusinessProfileByRucQuery(new Ruc(ruc));
+        var businessProfile = businessProfileQueryService.handle(getBusinessProfileQuery);
+        return businessProfile.isEmpty() ? Long.valueOf(0L) : businessProfile.get().getId();
     }
 
     @Override
     public Long fetchPersonProfileIdByDni(String dni) {
-        var getProfileByDniQuery= new GetPersonProfileByDniQuery(new Dni(dni));
-        var personProfile= personProfileQueryService.handle(getProfileByDniQuery);
-        return personProfile.isEmpty()?Long.valueOf(0L):personProfile.get().getId();
+        var getProfileByDniQuery = new GetPersonProfileByDniQuery(new Dni(dni));
+        var personProfile = personProfileQueryService.handle(getProfileByDniQuery);
+        return personProfile.isEmpty() ? Long.valueOf(0L) : personProfile.get().getId();
     }
 
     @Override
-    public Long updatePersonProfile(Long id,String dni, String firstName, String lastName, LocalDate birthDate, Integer Age, String emailAddress, String street, String number, String city, String postalCode, String country,byte[] photoData,
+    public Long updatePersonProfile(Long id, String dni, String firstName, String lastName, LocalDate birthDate, Integer Age, String emailAddress, String street, String number, String city, String postalCode, String country, byte[] photoData,
                                     String photoFileName, String phoneNumber) {
-        var updatePersonProfileCommand= new UpdatePersonProfileCommand(id,dni,firstName,lastName,birthDate,Age,emailAddress,street,number,city,postalCode,country,photoData,photoFileName,phoneNumber);
-        var personProfile= personProfileCommandService.handle(updatePersonProfileCommand);
-        return personProfile.isEmpty()?Long.valueOf(0L):personProfile.get().getId();
+        var updatePersonProfileCommand = new UpdatePersonProfileCommand(id, dni, firstName, lastName, birthDate, Age, emailAddress, street, number, city, postalCode, country, photoData, photoFileName, phoneNumber);
+        var personProfile = personProfileCommandService.handle(updatePersonProfileCommand);
+        return personProfile.isEmpty() ? Long.valueOf(0L) : personProfile.get().getId();
     }
 
     @Override
     public void deletePersonProfile(Long id) {
-        var deletePersonProfileCommand=new DeletePersonProfileCommand(id);
+        var deletePersonProfileCommand = new DeletePersonProfileCommand(id);
         personProfileCommandService.handle(deletePersonProfileCommand);
 
+    }
+
+
+    @Override
+    public String fetchDniByPersonProfileId(Long personProfileId) {
+        var query = new GetPersonProfileByIdQuery(personProfileId);
+        var result = personProfileQueryService.handle(query);
+        return result.map(profile -> profile.getDni().dni()).orElse("");
     }
 
 

@@ -11,4 +11,5 @@ public interface StaffCommandServices {
     void handle(DeleteStaffCommand command);
     void handle(AddContractToStaffMemberCommand command);
     void handle(UpdateContractStatusCommand command);
+    void handle(RegisterStaffUserCommand command);
 }

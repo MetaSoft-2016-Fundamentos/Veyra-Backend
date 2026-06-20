@@ -1,13 +1,11 @@
 package com.metasoft.veyra.platform.hcm.application.acl;
 
-import com.metasoft.veyra.platform.hcm.domain.model.queries.GetAllActiveStaffByContractWithNurseRoleByNursingHomeIdQuery;
-import com.metasoft.veyra.platform.hcm.domain.model.queries.GetStaffByIdQuery;
-import com.metasoft.veyra.platform.hcm.domain.model.queries.GetStaffMemberWithNurseRoleAndActiveContractQuery;
+import com.metasoft.veyra.platform.hcm.domain.model.queries.*;
 import com.metasoft.veyra.platform.hcm.domain.model.valueobjects.NursingHomeId;
 import com.metasoft.veyra.platform.hcm.domain.model.aggregates.Staff;
-import com.metasoft.veyra.platform.hcm.domain.model.queries.GetAllStaffMemberByNursingHomeIdQuery;
 import com.metasoft.veyra.platform.hcm.domain.services.StaffQueryServices;
 import com.metasoft.veyra.platform.hcm.interfaces.acl.HcmContextFacade;
+import com.metasoft.veyra.platform.hcm.domain.model.queries.GetStaffByUserIdQuery;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,33 +22,49 @@ public class HcmContextFacadeImpl implements HcmContextFacade {
 
     @Override
     public List<Staff> getAllActiveStaffWithNurseRoleByNursingHomeId(NursingHomeId nursingHomeId) {
-        var query = new GetAllActiveStaffByContractWithNurseRoleByNursingHomeIdQuery(nursingHomeId);
-        return staffQueryServices.handle(query);
+        var getAllActiveStaffWithNurseRoleByNursingHomeIdQuery = new GetAllActiveStaffByContractWithNurseRoleByNursingHomeIdQuery(nursingHomeId);
+        var result = staffQueryServices.handle(getAllActiveStaffWithNurseRoleByNursingHomeIdQuery);
+        return result.stream().toList();
     }
 
     @Override
-    public Optional<Staff> getStaffById(Long id) {
-        var query = new GetStaffByIdQuery(id);
-        return staffQueryServices.handle(query);
+    public Long getStaffById(Long id) {
+        var getStaffByIdQuery = new GetStaffByIdQuery(id);
+        var result = staffQueryServices.handle(getStaffByIdQuery);
+        return result.isEmpty() ? Long.valueOf(0L) : result.get().getId();
     }
 
     @Override
     public List<Staff> getAllStaffByNursingHomeId(NursingHomeId nursingHomeId) {
-        var query = new GetAllStaffMemberByNursingHomeIdQuery(nursingHomeId);
-        return staffQueryServices.handle(query);
+        var getAllStaffMemberByNursingHomeIdQuery = new GetAllStaffMemberByNursingHomeIdQuery(nursingHomeId);
+        var result = staffQueryServices.handle(getAllStaffMemberByNursingHomeIdQuery);
+        return result.stream().toList();
     }
 
     @Override
     public List<Staff> getAllActiveStaffByNursingHomeId(NursingHomeId nursingHomeId) {
-        var query = new GetAllStaffMemberByNursingHomeIdQuery(nursingHomeId);
-        return staffQueryServices.handle(query).stream()
-                .filter(staff -> staff.getStaffStatus() != null && "ACTIVE".equals(staff.getStaffStatus().name()))
+        var getAllStaffMemberByNursingHomeIdQuery = new GetAllStaffMemberByNursingHomeIdQuery(nursingHomeId);
+        var result = staffQueryServices.handle(getAllStaffMemberByNursingHomeIdQuery);
+        return result.stream()
+                .filter(staff -> "ACTIVE".equals(staff.getStaffStatus().name()))
                 .toList();
+
     }
 
     @Override
     public Optional<Staff> getStaffMemberWithNurseRoleAndActiveContract(Long staffId, NursingHomeId nursingHomeId) {
-        var query = new GetStaffMemberWithNurseRoleAndActiveContractQuery(staffId, nursingHomeId);
-        return staffQueryServices.handle(query);
+        var getStaffMemberWithNurseRoleAndActiveContractQuery = new GetStaffMemberWithNurseRoleAndActiveContractQuery(staffId, nursingHomeId);
+        var result = staffQueryServices.handle(getStaffMemberWithNurseRoleAndActiveContractQuery);
+        return result.stream()
+                .filter(staff -> staff.getId().equals(staffId))
+                .findFirst();
+
+    }
+
+    @Override
+    public Long getStaffByUserId(Long userId) {
+        var getStaffByUserIdQuery = new GetStaffByUserIdQuery(userId);
+        var result = staffQueryServices.handle(getStaffByUserIdQuery);
+        return result.isEmpty() ? Long.valueOf(0L) : result.get().getId();
     }
 }

@@ -1,4 +1,4 @@
-package com.metasoft.veyra.platform.shared.domain.model.valueobjetcs;
+package com.metasoft.veyra.platform.shared.domain.model.valueobjects;
 
 public enum EmailTemplate {
     WELCOME,

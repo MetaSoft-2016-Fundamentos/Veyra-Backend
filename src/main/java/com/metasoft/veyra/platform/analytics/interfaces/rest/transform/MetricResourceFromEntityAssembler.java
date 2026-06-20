@@ -33,7 +33,6 @@ public class MetricResourceFromEntityAssembler {
                 .sorted()
                 .toList();
 
-        // Generate labels (month names in English)
         List<String> labels = sortedMonths.stream()
                 .map(month -> month.getDisplayName(TextStyle.FULL, Locale.ENGLISH))
                 .toList();

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
+@Service("externalIamServiceNursing")
 public class ExternalIamService {
 
     private final IamContextFacade iamContextFacade;
@@ -41,5 +41,12 @@ public class ExternalIamService {
      */
     public boolean userExists(String username) {
         return fetchUserByUsername(username) != null;
+    }
+    /**
+     * Creates a relative account in IAM with a temporary password.
+     * @return activation token to be sent to the relative's email
+     */
+    public String createRelativeAccount(String email) {
+        return iamContextFacade.createRelativeAccount(email);
     }
 }

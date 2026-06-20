@@ -47,4 +47,11 @@ public interface IamContextFacade {
      * ADDED FOR PAYMENTS: To validate user before creating subscription.
      */
     boolean existsUserById(Long userId);
+    /**
+     * Creates a relative account with a temporary password and activation token.
+     *
+     * @param email the email to use as username
+     * @return the activation token to be sent via email
+     */
+    String createRelativeAccount(String email);
 }

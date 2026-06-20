@@ -26,5 +26,6 @@ public interface UserRepository extends JpaRepository<User, Long>
      * @return True if the user exists, false otherwise.
      */
     boolean existsByUsername(String username);
+    Optional<User> findByActivationToken(String activationToken);
 
 }
