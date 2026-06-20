@@ -20,4 +20,6 @@ public interface DeviceRepository extends JpaRepository<Device,Long>
     List<Device> findAllByNursingHomeId(NursingHomeId nursingHomeId);
     boolean existsByMacAddress(MacAddress macAddress);
     Optional<Device> findByMacAddressAndStatus(MacAddress macAddress, AssignmentStatus status);
+
+    boolean existsDeviceById(Long id);
 }
