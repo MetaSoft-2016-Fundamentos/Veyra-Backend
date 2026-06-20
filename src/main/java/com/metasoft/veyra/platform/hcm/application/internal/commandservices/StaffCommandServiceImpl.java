@@ -2,9 +2,11 @@ package com.metasoft.veyra.platform.hcm.application.internal.commandservices;
 
 import com.metasoft.veyra.platform.hcm.application.internal.outboundservices.acl.ExternalNursingService;
 import com.metasoft.veyra.platform.hcm.application.internal.outboundservices.acl.ExternalProfileService;
+import com.metasoft.veyra.platform.hcm.application.internal.outboundservices.acl.ExternalProfileService.ProfileDetails;
 import com.metasoft.veyra.platform.hcm.application.internal.outboundservices.acl.ExternalIamService;
 import com.metasoft.veyra.platform.hcm.domain.model.aggregates.Staff;
 import com.metasoft.veyra.platform.hcm.domain.model.commands.*;
+import com.metasoft.veyra.platform.hcm.domain.model.events.RegisteredStaffEvent;
 import com.metasoft.veyra.platform.hcm.domain.model.valueobjects.EmergencyContact;
 import com.metasoft.veyra.platform.hcm.domain.model.valueobjects.UserId;
 import com.metasoft.veyra.platform.hcm.domain.services.StaffCommandServices;
@@ -71,6 +73,7 @@ public class StaffCommandServiceImpl implements StaffCommandServices {
 
         var staff = new Staff(personProfileId.get(), nursingHomeId.get(), emergencyContact);
         staffRepository.save(staff);
+        staff.addDomainEvent(new RegisteredStaffEvent(staff, staff.getId(), command.emailAddress(), command.firstName(), command.lastName()));
         return staff.getId();
     }
 
@@ -112,15 +115,15 @@ public class StaffCommandServiceImpl implements StaffCommandServices {
                         ,command.staffRole(),command.workShift());
                 staffRepository.save(staff);
 
-                // Check if the staff role is DOCTOR and create a user account
-                if ("DOCTOR".equals(command.staffRole())) { // Corrected line
+                // Check if the staff role is DOCTOR or NURSE and create a user account
+                if ("DOCTOR".equals(command.staffRole()) || "NURSE".equals(command.staffRole())) {
                     String dni = externalProfileService.fetchDniByPersonProfileId(staff.getPersonProfileId().id());
                     if (dni.isEmpty()) {
                         throw new IllegalStateException("DNI not found for staff profile with ID: " + staff.getPersonProfileId().id());
                     }
 
-                    // Create user in IAM with empty password and ROLE_DOCTOR
-                    Long userId = externalIamService.createStaffUser(dni, "", "ROLE_DOCTOR");
+                    // Create user in IAM with empty password and ROLE_DOCTOR/NURSE
+                    Long userId = externalIamService.createStaffUser(dni, "", "ROLE_"+command.staffRole());
 
                     if (userId == 0L) {
                         throw new RuntimeException("Could not create user in IAM for DNI: " + dni);
@@ -128,6 +131,18 @@ public class StaffCommandServiceImpl implements StaffCommandServices {
 
                     staff.setUserId(new UserId(userId));
                     staffRepository.save(staff); // Save staff with the new userId
+
+                    // Fetch profile details and publish RegisteredStaffEvent
+                    externalProfileService.fetchProfileDetailsByPersonProfileId(staff.getPersonProfileId().id())
+                            .ifPresent(profileDetails ->
+                                    staff.addDomainEvent(new RegisteredStaffEvent(
+                                            staff,
+                                            staff.getId(),
+                                            profileDetails.email(),
+                                            profileDetails.firstName(),
+                                            profileDetails.lastName()
+                                    ))
+                            );
                 }
 
             } catch (Exception e){
