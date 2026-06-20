@@ -21,7 +21,7 @@ public class TrackingApplicationReadyEventHandler {
 
     public TrackingApplicationReadyEventHandler(
             MeasurementCommandService measurementCommandService,
-            @Value("${tracking.seeding.measurements.enabled:true}") boolean measurementSeedingEnabled
+            @Value("${tracking.seeding.measurements.enabled:false}") boolean measurementSeedingEnabled
     ) {
 
         this.measurementCommandService = measurementCommandService;
