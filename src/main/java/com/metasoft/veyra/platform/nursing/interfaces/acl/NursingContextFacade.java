@@ -9,4 +9,6 @@ public interface NursingContextFacade {
     Long fetchResidentById(Long residentId);
     Long fetchAdministratorByUserId(Long userId);
     Optional<LocalDate> fetchNursingHomeCreatedAtById(Long id);
+
+    Long fetchStaffMemberIdByResidentId(Long residentId);
 }
