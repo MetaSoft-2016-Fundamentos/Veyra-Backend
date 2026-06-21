@@ -26,7 +26,7 @@ public class LocationRecordedEventHandler {
                 "longitude", event.getLongitude(),
                 "recordedAt", event.getRecordedAt().toString()
         );
-        var topic = "/topic/tracking/" + event.getDeviceId();
+        var topic = "/topic/tracking/locations" + event.getDeviceId();
         messagingTemplate.convertAndSend(topic, payload);
 
         LOGGER.info("Broadcasted location to topic: {} | payload: {}", topic, payload);
