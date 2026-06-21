@@ -24,17 +24,6 @@ public class VitalSignCommandServiceImpl implements VitalSignCommandService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VitalSignCommandServiceImpl.class);
 
-    // Umbrales médicos por defecto (se usan cuando el doctor no ha configurado umbrales)
-    private static final int DEFAULT_HR_MIN = 60;
-    private static final int DEFAULT_HR_MAX = 100;
-    private static final int DEFAULT_SPO2_MIN = 95;
-    private static final double DEFAULT_TEMP_MIN = 36.1;
-    private static final double DEFAULT_TEMP_MAX = 37.5;
-    private static final int DEFAULT_SYSTOLIC_MAX = 140;
-    private static final int DEFAULT_DIASTOLIC_MAX = 90;
-    private static final int DEFAULT_RR_MIN = 12;
-    private static final int DEFAULT_RR_MAX = 20;
-
     // Umbrales críticos siempre fijos (no configurables)
     private static final int HR_CRITICAL_LOW = 50;
     private static final int HR_CRITICAL_HIGH = 120;
@@ -78,16 +67,24 @@ public class VitalSignCommandServiceImpl implements VitalSignCommandService {
         var residentId = residentIdOpt.get();
         LOGGER.debug("Device {} → Resident {}", command.deviceId(), residentId.residentId());
 
-        var threshold = thresholdQueryService
-                .handle(new GetVitalSignThresholdByResidentIdQuery(residentId))
-                .orElse(null);
-
-        var validationResult = validateVitalSigns(command, threshold);
+        var thresholdOpt = thresholdQueryService
+                .handle(new GetVitalSignThresholdByResidentIdQuery(residentId));
 
         var vitalSign = new VitalSign(
                 residentId,
                 new MeasurementId(command.measurementId())
         );
+
+        if (thresholdOpt.isEmpty()) {
+            LOGGER.info("Resident {} has no clinical parameters configured - storing as NORMAL without alert",
+                    residentId.residentId());
+            vitalSign.setSeverityLevel(SeverityLevel.NORMAL);
+            vitalSignRepository.save(vitalSign);
+            return;
+        }
+
+        var validationResult = validateVitalSigns(command, thresholdOpt.get());
+
         vitalSign.setSeverityLevel(validationResult.severity());
         vitalSignRepository.save(vitalSign);
         LOGGER.info("Created VitalSign {} for resident {} with severity {}",
@@ -113,15 +110,15 @@ public class VitalSignCommandServiceImpl implements VitalSignCommandService {
         var anomalies = new ArrayList<String>();
         boolean hasCritical = false;
 
-        int hrMin  = t != null && t.getHeartRateMin() != null  ? t.getHeartRateMin()  : DEFAULT_HR_MIN;
-        int hrMax  = t != null && t.getHeartRateMax() != null  ? t.getHeartRateMax()  : DEFAULT_HR_MAX;
-        int spo2Min = t != null && t.getOxygenSaturationMin() != null ? t.getOxygenSaturationMin() : DEFAULT_SPO2_MIN;
-        double tempMin = t != null && t.getTemperatureMin() != null ? t.getTemperatureMin() : DEFAULT_TEMP_MIN;
-        double tempMax = t != null && t.getTemperatureMax() != null ? t.getTemperatureMax() : DEFAULT_TEMP_MAX;
-        int sysMax  = t != null && t.getSystolicMax()  != null ? t.getSystolicMax()  : DEFAULT_SYSTOLIC_MAX;
-        int diasMax = t != null && t.getDiastolicMax() != null ? t.getDiastolicMax() : DEFAULT_DIASTOLIC_MAX;
-        int rrMin   = t != null && t.getRespiratoryRateMin() != null ? t.getRespiratoryRateMin() : DEFAULT_RR_MIN;
-        int rrMax   = t != null && t.getRespiratoryRateMax() != null ? t.getRespiratoryRateMax() : DEFAULT_RR_MAX;
+        int hrMin   = t.getHeartRateMin()         != null ? t.getHeartRateMin()         : 0;
+        int hrMax   = t.getHeartRateMax()         != null ? t.getHeartRateMax()         : Integer.MAX_VALUE;
+        int spo2Min = t.getOxygenSaturationMin()  != null ? t.getOxygenSaturationMin()  : 0;
+        double tempMin = t.getTemperatureMin()    != null ? t.getTemperatureMin()        : 0.0;
+        double tempMax = t.getTemperatureMax()    != null ? t.getTemperatureMax()        : Double.MAX_VALUE;
+        int sysMax  = t.getSystolicMax()          != null ? t.getSystolicMax()           : Integer.MAX_VALUE;
+        int diasMax = t.getDiastolicMax()         != null ? t.getDiastolicMax()          : Integer.MAX_VALUE;
+        int rrMin   = t.getRespiratoryRateMin()   != null ? t.getRespiratoryRateMin()    : 0;
+        int rrMax   = t.getRespiratoryRateMax()   != null ? t.getRespiratoryRateMax()    : Integer.MAX_VALUE;
 
         if (command.heartRate() != null) {
             if (command.heartRate() < hrMin) {
