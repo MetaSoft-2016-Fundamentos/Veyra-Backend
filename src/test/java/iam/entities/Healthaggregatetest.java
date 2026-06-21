@@ -8,18 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * PRUEBA UNITARIA — involucra Allergy y VitalSign (aggregates) y
- * RegisterAllergyCommand (record con validaciones propias).
- * Sin Spring, sin mocks, sin base de datos.
- */
 class HealthAggregateTest {
-
-    // ════════════════════════════════════════════════════════════════════
-    // Allergy aggregate
-    // ════════════════════════════════════════════════════════════════════
-
-    // ── 1. Crear Allergy con datos válidos ────────────────────────────────────
 
     @Test
     void shouldCreateAllergyWithCorrectFields() {

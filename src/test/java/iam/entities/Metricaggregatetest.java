@@ -10,10 +10,6 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * PRUEBA UNITARIA — solo involucra la clase Metric (aggregate).
- * Sin Spring, sin mocks, sin base de datos.
- */
 class MetricAggregateTest {
 
     private Metric buildMetric() {
@@ -25,8 +21,6 @@ class MetricAggregateTest {
         );
     }
 
-    // ── 1. Valor inicial de una métrica nueva es 1 ────────────────────────────
-
     @Test
     void shouldInitializeValueToOneOnCreation() {
         Metric metric = buildMetric();
@@ -34,8 +28,6 @@ class MetricAggregateTest {
         assertEquals(1L, metric.getValue(),
                 "El valor inicial de una métrica nueva debe ser 1");
     }
-
-    // ── 2. incrementValue aumenta el contador en 1 ────────────────────────────
 
     @Test
     void shouldIncrementValueByOne() {

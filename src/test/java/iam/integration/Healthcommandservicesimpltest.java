@@ -28,10 +28,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-/**
- * PRUEBA DE INTEGRACIÓN — verifica AllergyCommandServiceImpl
- * y VitalSignCommandServiceImpl mockeando sus dependencias.
- */
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 class HealthCommandServicesImplTest {
