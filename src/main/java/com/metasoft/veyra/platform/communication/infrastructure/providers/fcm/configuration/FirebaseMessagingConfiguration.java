@@ -9,10 +9,12 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Base64;
 
 @Configuration
 public class FirebaseMessagingConfiguration {
@@ -22,6 +24,9 @@ public class FirebaseMessagingConfiguration {
 
     @Value("${firebase.credentials.path:}")
     private String credentialsPath;
+
+    @Value("${FIREBASE_CREDENTIALS_JSON:}")
+    private String credentialsJson;
 
     @Bean
     FirebaseMessagingSettings firebaseMessagingSettings() {
@@ -50,6 +55,13 @@ public class FirebaseMessagingConfiguration {
     }
 
     private GoogleCredentials loadCredentials(String credentialsPath) throws IOException {
+        if (credentialsJson != null && !credentialsJson.isBlank()) {
+            byte[] decoded = Base64.getDecoder().decode(credentialsJson);
+            try (InputStream stream = new ByteArrayInputStream(decoded)) {
+                return GoogleCredentials.fromStream(stream);
+            }
+        }
+
         Path serviceAccountPath = Path.of(credentialsPath);
         if (!Files.isRegularFile(serviceAccountPath)) {
             throw new IllegalStateException("Firebase service account file not found");
