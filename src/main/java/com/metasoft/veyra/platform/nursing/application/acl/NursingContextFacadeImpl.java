@@ -59,4 +59,12 @@ public class NursingContextFacadeImpl implements NursingContextFacade {
         var nursingHome = nursingHomeQueryServices.handle(query);
         return nursingHome.map(home -> home.getCreatedAt().toLocalDate());
     }
+
+    @Override
+    public Long fetchStaffMemberIdByResidentId(Long residentId) {
+        var query = new GetResidentByIdQuery(residentId);
+        var resident = residentQueryServices.handle(query);
+        if (resident.isEmpty() || resident.get().getStaffMemberId() == null) return 0L;
+        return resident.get().getStaffMemberId().staffMemberId();
+    }
 }

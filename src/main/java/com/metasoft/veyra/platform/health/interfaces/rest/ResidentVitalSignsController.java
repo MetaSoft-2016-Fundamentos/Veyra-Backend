@@ -10,52 +10,59 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-@RequestMapping(value = "/api/v1/resident/{residentId}/vital-signs",produces = APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v1/resident/{residentId}/vital-signs", produces = APPLICATION_JSON_VALUE)
 @RestController
 @Tag(name = "Residents")
 public class ResidentVitalSignsController {
-private final VitalSignQueryService vitalSignQueryService;
+  private final VitalSignQueryService vitalSignQueryService;
 
-    public ResidentVitalSignsController( VitalSignQueryService vitalSignQueryService) {
-        this.vitalSignQueryService = vitalSignQueryService;
+  public ResidentVitalSignsController(VitalSignQueryService vitalSignQueryService) {
+    this.vitalSignQueryService = vitalSignQueryService;
+  }
+
+  @GetMapping
+  @Operation(
+    summary = "Get paginated vital signs for a resident with date filtering",
+    description = "Returns a paginated list of vital signs within a specific date range for a resident."
+  )
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Page of vital signs successfully retrieved."),
+    @ApiResponse(responseCode = "400", description = "Invalid criteria provided."),
+    @ApiResponse(responseCode = "500", description = "Internal server error.")
+  })
+  public ResponseEntity<Page<VitalSignResource>> getVitalSignsByResidentId(
+    @PathVariable Long residentId,
+    @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+    @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+    @RequestParam(defaultValue = "0") int page,
+    @RequestParam(defaultValue = "20") int size) {
+
+    if (endDate == null) {
+      endDate = LocalDateTime.now();
+    }
+    if (startDate == null) {
+      startDate = endDate.minusDays(3);
     }
 
-    @GetMapping
-    @Operation(
-            summary = "Get vital signs for a resident",
-            description = "Returns the list of vital signs associated with a resident identified by the given resident ID."
-    )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "List of vital signs found (may be an empty list)."),
-            @ApiResponse(responseCode = "404", description = "Resident not found."),
-            @ApiResponse(responseCode = "500", description = "Internal server error.")
-    })
-    @Parameter(name = "residentId", description = "The unique identifier of the resident ", required = true)
-    public ResponseEntity<List<VitalSignResource>> getVitalSignsByResidentId(
-            @PathVariable Long residentId) {
+    var pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
-        var vitalSigns = vitalSignQueryService.handle(
-                new GetVitalSignsByResidentIdQuery(new ResidentId(residentId))
-        );
+    var vitalSignsPage = vitalSignQueryService.handle(
+      new GetVitalSignsByResidentIdQuery(new ResidentId(residentId), startDate, endDate, pageable)
+    );
 
-        if (vitalSigns == null || vitalSigns.isEmpty()) {
-            return ResponseEntity.ok(List.of());
-        }
+    var resourcesPage = vitalSignsPage.map(VitalSignResourceFromEntityAssembler::toResourceFromEntity);
 
-        var resources = vitalSigns.stream()
-                .map(VitalSignResourceFromEntityAssembler::toResourceFromEntity)
-                .toList();
-
-        return ResponseEntity.ok(resources);
-    }
+    return ResponseEntity.ok(resourcesPage);
+  }
 }

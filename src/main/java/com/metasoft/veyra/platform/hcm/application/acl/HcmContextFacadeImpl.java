@@ -67,4 +67,11 @@ public class HcmContextFacadeImpl implements HcmContextFacade {
         var result = staffQueryServices.handle(getStaffByUserIdQuery);
         return result.isEmpty() ? Long.valueOf(0L) : result.get().getId();
     }
+
+    @Override
+    public Long fetchUserIdByStaffId(Long staffId) {
+        var query = new GetStaffByIdQuery(staffId);
+        var result = staffQueryServices.handle(query);
+        return result.isEmpty() ? Long.valueOf(0L) : result.get().getUserId().getUserId();
+    }
 }

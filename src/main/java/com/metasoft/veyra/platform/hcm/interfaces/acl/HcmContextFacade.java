@@ -13,4 +13,6 @@ public interface HcmContextFacade {
     List<Staff> getAllActiveStaffByNursingHomeId(NursingHomeId nursingHomeId);
     Optional<Staff> getStaffMemberWithNurseRoleAndActiveContract(Long staffId, NursingHomeId nursingHomeId);
     Long getStaffByUserId(Long userId);
+
+    Long fetchUserIdByStaffId(Long staffId);
 }

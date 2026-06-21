@@ -13,8 +13,13 @@ public class ExternalNursingService {
     public ExternalNursingService(NursingContextFacade nursingContextFacade) {
         this.nursingContextFacade = nursingContextFacade;
     }
-  public   Optional <ResidentId>fetchResidentById(Long residentId){
-        var query= nursingContextFacade.fetchResidentById(residentId);
-        return query==0L?Optional.empty():Optional.of(new ResidentId(query));
+    public Optional<ResidentId> fetchResidentById(Long residentId) {
+        var query = nursingContextFacade.fetchResidentById(residentId);
+        return query == 0L ? Optional.empty() : Optional.of(new ResidentId(query));
+    }
+
+    public Optional<Long> fetchStaffMemberIdByResidentId(Long residentId) {
+        var staffMemberId = nursingContextFacade.fetchStaffMemberIdByResidentId(residentId);
+        return staffMemberId == 0L ? Optional.empty() : Optional.of(staffMemberId);
     }
 }
