@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
-@Service
+@Service("MeasurementRecordedEventHandlerHealth")
 public class MeasurementRecordedEventHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MeasurementRecordedEventHandler.class);
